@@ -20,3 +20,9 @@
   font-size: var(--sapFontSmallSize);
   font-family: var(--sapFontBoldFamily);
 }
+
+/* Documentation links inside explanatory text match its size. */
+.field-hint ui5-link,
+.storage-row-description ui5-link {
+  font-size: var(--sapFontSmallSize);
+}

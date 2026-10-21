@@ -14,6 +14,12 @@
   gap: 0.5rem 1rem;
 }
 
+.pricing-model-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+}
+
 .pricing-model-lead {
   margin: 0.25rem 0 0.75rem;
   color: var(--sapContent_LabelColor);

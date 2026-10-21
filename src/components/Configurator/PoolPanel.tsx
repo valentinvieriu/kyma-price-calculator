@@ -28,6 +28,7 @@ import { formatCU, formatNumber, plural } from '../../utils/format';
 import billedSizeNote from '../common/billedSizeNote';
 import Field from '../common/Field';
 import Formula, { FormulaLine } from '../common/Formula';
+import HelpLink from '../common/HelpLink';
 import NumberInput from '../common/NumberInput';
 import PoolResources, { resourceSummary } from './PoolResources';
 import { poolResources } from '../../calculatorFunctions/resources/calculateResources';
@@ -130,9 +131,17 @@ export default function PoolPanel({
             label="Machine type"
             wide
             hint={
-              isBase
-                ? 'The base pool always runs General Purpose machines. Add a worker node pool to use another type.'
-                : 'Non-general-purpose types are not available in every region, cloud provider or zone.'
+              isBase ? (
+                'The base pool always runs General Purpose machines. Add a worker node pool to use another type.'
+              ) : (
+                <>
+                  Types other than General Purpose are not available in every
+                  region, cloud provider or zone.{' '}
+                  <HelpLink docKey="machine-types">
+                    Machine types and availability
+                  </HelpLink>
+                </>
+              )
             }
           >
             {isBase ? (
@@ -175,7 +184,17 @@ export default function PoolPanel({
             )}
           </Field>
 
-          <Field label="VM size" htmlFor={`${id}-vm-size`}>
+          <Field
+            label="VM size"
+            htmlFor={`${id}-vm-size`}
+            hint={
+              <>
+                Kyma modules also run on these nodes and use part of their
+                capacity.{' '}
+                <HelpLink docKey="module-sizing">Module sizing</HelpLink>
+              </>
+            }
+          >
             <Select
               id={`${id}-vm-size`}
               className="vm-size-select"
@@ -202,7 +221,15 @@ export default function PoolPanel({
           <Field
             label="Minimum nodes"
             htmlFor={`${id}-nodes`}
-            hint="Autoscaler minimum: you pay for at least this many nodes. Scaling above it adds node-hours."
+            hint={
+              <>
+                Autoscaler minimum: you pay for at least this many nodes.
+                Scaling above it adds node-hours.{' '}
+                <HelpLink docKey="autoscaler-min">
+                  How the minimum works
+                </HelpLink>
+              </>
+            }
           >
             <NumberInput
               id={`${id}-nodes`}
@@ -218,7 +245,16 @@ export default function PoolPanel({
           <Field
             label="Extra disk per node"
             htmlFor={`${id}-volume`}
-            hint={`Added to the included ${includedVolume} GiB, in ${STORAGE_BLOCK_SIZE_GIB} GiB blocks.`}
+            hint={
+              <>
+                Each node&apos;s disk holds container images and logs. Add space
+                if they need more than the included {includedVolume} GiB; for
+                application data, use Storage.{' '}
+                <HelpLink docKey="additional-volume">
+                  About additional node disk
+                </HelpLink>
+              </>
+            }
             note={billedSizeNote(machine.additionalVolumeGib)}
           >
             <NumberInput

@@ -1,23 +1,53 @@
 .storage-rows {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .storage-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 1fr);
+  gap: 0.75rem 2rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--sapList_BorderColor, #e5e5e5);
+}
+
+.storage-row:first-child {
+  padding-top: 0;
+}
+
+.storage-row-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.storage-row-title ui5-label {
+  font-family: var(--sapFontBoldFamily);
+  color: var(--sapTextColor);
+}
+
+.storage-row-description {
+  font-family: var(--sapFontFamily);
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapContent_LabelColor);
+  line-height: 1.5;
+}
+
+.storage-row-amount {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.storage-row-control {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
 .storage-node-volume {
   color: var(--sapContent_LabelColor);
   font-size: var(--sapFontSmallSize);
+}
+
+@media (max-width: 760px) {
+  .storage-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

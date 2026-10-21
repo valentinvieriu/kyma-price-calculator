@@ -4,6 +4,7 @@ import { Icon, Link, Panel, Title } from '@ui5/webcomponents-react';
 import config from '../../config.json';
 import { STORAGE_BLOCK_SIZE_GIB } from '../../calculatorFunctions/storageCosts/storageBlocks';
 import scrollToElement from '../../utils/scrollTo';
+import HelpLink from '../common/HelpLink';
 import {
   BillingSetting,
   billingEditorState,
@@ -91,14 +92,7 @@ const groups: Group[] = [
       <>
         Every managed Kyma module runs in your cluster and uses part of its
         capacity. Size your nodes with{' '}
-        <Link
-          href="https://help.sap.com/docs/btp/sap-business-technology-platform/kyma-modules-sizing"
-          target="_blank"
-          endIcon="action"
-        >
-          Module Sizing
-        </Link>{' '}
-        in mind.
+        <HelpLink docKey="module-sizing">Module Sizing</HelpLink> in mind.
       </>,
       <>
         Real consumption grows with how you use the cluster, for example the
@@ -117,7 +111,8 @@ const groups: Group[] = [
       </>,
       <>
         Machine types other than General Purpose are not available with every
-        cloud provider, region, VM size or availability zone.
+        cloud provider, region, VM size or availability zone. Check{' '}
+        <HelpLink docKey="regions">Kyma regions</HelpLink>.
       </>,
       <>EU Access landscapes are available at the same price.</>,
     ],

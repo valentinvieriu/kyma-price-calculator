@@ -73,7 +73,10 @@ export default function NodePoolsSection() {
         <Button icon="add" onClick={add}>
           Add worker node pool
         </Button>
-        <HelpLink docKey="worker-node-pools" />
+        <HelpLink docKey="worker-node-pools">About worker node pools</HelpLink>
+        <HelpLink docKey="workload-assignment">
+          Assigning workloads to pools
+        </HelpLink>
       </div>
     </Section>
   );

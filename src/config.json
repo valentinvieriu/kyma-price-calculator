@@ -226,6 +226,15 @@
   "documentationUrls": {
     "redis": "https://help.sap.com/docs/btp/sap-business-technology-platform/redis",
     "nfs": "https://help.sap.com/docs/btp/sap-business-technology-platform/nfs",
-    "worker-node-pools": "https://help.sap.com/docs/btp/sap-business-technology-platform/provisioning-and-update-parameters-in-kyma-environment#additional-worker-node-pools"
+    "worker-node-pools": "https://help.sap.com/docs/btp/sap-business-technology-platform/provisioning-and-update-parameters-in-kyma-environment#additional-worker-node-pools",
+    "workload-assignment": "https://help.sap.com/docs/btp/sap-business-technology-platform/assigning-workloads-to-worker-node-pools",
+    "machine-types": "https://help.sap.com/docs/btp/sap-business-technology-platform/provisioning-and-update-parameters-in-kyma-environment#machine-type",
+    "autoscaler-min": "https://help.sap.com/docs/btp/sap-business-technology-platform/provisioning-and-update-parameters-in-kyma-environment#auto-scaler-min",
+    "additional-volume": "https://help.sap.com/docs/btp/sap-business-technology-platform/provisioning-and-update-parameters-in-kyma-environment#additional-volume-size",
+    "module-sizing": "https://help.sap.com/docs/btp/sap-business-technology-platform/kyma-modules-sizing",
+    "persistent-storage": "https://help.sap.com/docs/btp/sap-business-technology-platform/change-storage-size-in-kyma",
+    "volume-snapshots": "https://help.sap.com/docs/btp/sap-business-technology-platform/create-on-demand-volume-snapshots",
+    "metering": "https://help.sap.com/docs/btp/sap-business-technology-platform/service-plans-and-metering-for-kyma-runtime",
+    "regions": "https://help.sap.com/docs/btp/sap-business-technology-platform/regions-for-kyma-environment"
   }
 }

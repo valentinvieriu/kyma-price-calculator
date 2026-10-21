@@ -25,6 +25,7 @@ import {
 } from '../../utils/format';
 import scrollToElement from '../../utils/scrollTo';
 import { CATEGORY_COLORS } from '../common/categoryColors';
+import HelpLink from '../common/HelpLink';
 import './PricingModel.css';
 
 // Hourly prices are multiples of 0.12, 0.02 and 0.000625 CU, so six decimals
@@ -139,7 +140,12 @@ export default function PricingModel({ onShowAssumptions }: Props) {
         <Title id="pricing-model-title" level="H2" size="H5">
           How pricing works
         </Title>
-        <Link onClick={onShowAssumptions}>Assumptions and notes</Link>
+        <div className="pricing-model-links">
+          <HelpLink docKey="metering">
+            How Capacity Units are calculated
+          </HelpLink>
+          <Link onClick={onShowAssumptions}>Assumptions and notes</Link>
+        </div>
       </div>
 
       <button

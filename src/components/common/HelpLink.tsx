@@ -5,18 +5,20 @@ export type DocumentationKey = keyof typeof config.documentationUrls;
 
 interface Props {
   docKey: DocumentationKey;
-  slot?: string;
+  // Says what the page explains, e.g. "About NFS storage".
+  children: string;
 }
 
-export default function HelpLink({ docKey, slot }: Props) {
+// Opens SAP Help in a new tab, so the configuration stays in place.
+export default function HelpLink({ docKey, children }: Props) {
   return (
     <Link
-      slot={slot}
       href={config.documentationUrls[docKey]}
       target="_blank"
       endIcon="action"
+      wrappingType="Normal"
     >
-      Documentation
+      {children}
     </Link>
   );
 }

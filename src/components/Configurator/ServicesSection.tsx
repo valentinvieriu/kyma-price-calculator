@@ -33,7 +33,7 @@ export default function ServicesSection() {
       <Field
         label="Cloud-managed Redis cache"
         htmlFor="redis-select"
-        hint={`Priced like storage: tier size in ${STORAGE_BLOCK_SIZE_GIB} GiB blocks at ${formatNumber(STORAGE_BLOCK_HOURLY_RATE)} CU/h per block.`}
+        hint={`A Redis instance managed by your cloud provider, provisioned with the Cloud Manager module. Priced like storage: the tier size in ${STORAGE_BLOCK_SIZE_GIB} GiB blocks at ${formatNumber(STORAGE_BLOCK_HOURLY_RATE)} CU/h per block.`}
       >
         <div className="services-control">
           <Select
@@ -62,7 +62,7 @@ export default function ServicesSection() {
               </Option>
             ))}
           </Select>
-          <HelpLink docKey="redis" />
+          <HelpLink docKey="redis">Redis tiers</HelpLink>
         </div>
       </Field>
       {redis.storageGib > 0 && (

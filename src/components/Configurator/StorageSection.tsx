@@ -1,4 +1,6 @@
+import { ReactNode } from 'react';
 import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
+import { Label, Tag } from '@ui5/webcomponents-react';
 import config from '../../config.json';
 import {
   storageCostBreakdownAtom,
@@ -16,9 +18,8 @@ import {
 } from '../../calculatorFunctions/storageCosts/storageBlocks';
 import { formatCU, formatNumber, plural } from '../../utils/format';
 import billedSizeNote from '../common/billedSizeNote';
-import Field from '../common/Field';
 import Formula from '../common/Formula';
-import HelpLink, { DocumentationKey } from '../common/HelpLink';
+import HelpLink from '../common/HelpLink';
 import NumberInput from '../common/NumberInput';
 import Section from '../common/Section';
 import './StorageSection.css';
@@ -36,25 +37,28 @@ interface RangeSettings {
 interface RowProps {
   id: string;
   label: string;
-  hint: string;
+  // How workloads can use this storage, e.g. "Shared across workloads".
+  access: string;
+  description: ReactNode;
   quantityAtom: PrimitiveAtom<number>;
   settings: RangeSettings;
   multiplier: number;
   freeBlocks: number;
   cost: number;
-  docKey?: DocumentationKey;
 }
 
+// One storage type: what it is on the left, how much and what it costs on the
+// right.
 function StorageRow({
   id,
   label,
-  hint,
+  access,
+  description,
   quantityAtom,
   settings,
   multiplier,
   freeBlocks,
   cost,
-  docKey,
 }: RowProps) {
   const [gib, setGib] = useAtom(quantityAtom);
   const hours = useAtomValue(timeConsumptionState);
@@ -66,34 +70,45 @@ function StorageRow({
       ? `(${blocks} − ${freeBlocks} free) blocks`
       : plural(billed, 'block');
   const factor = multiplier !== 1 ? ` × ${multiplier}` : '';
+  const note = billedSizeNote(gib);
 
   return (
     <div className="storage-row">
-      <Field label={label} htmlFor={id} hint={hint} note={billedSizeNote(gib)}>
-        <div className="storage-row-control">
-          <NumberInput
-            id={id}
-            value={gib}
-            setValue={setGib}
-            min={settings.Min}
-            max={settings.Max}
-            step={settings.Step}
-            snapStep={REQUESTED_SIZE_STEP_GIB}
-            unit="GiB"
-          />
-          {docKey && <HelpLink docKey={docKey} />}
+      <div className="storage-row-about">
+        <div className="storage-row-title">
+          <Label for={id} wrappingType="Normal">
+            {label}
+          </Label>
+          <Tag design="Neutral" hideStateIcon>
+            {access}
+          </Tag>
         </div>
-      </Field>
-      {gib > 0 && (
-        <Formula
-          lines={[
-            {
-              expression: `${blockCount}${factor} × ${blockRate} × ${hours} h`,
-              result: cost,
-            },
-          ]}
+        <div className="storage-row-description">{description}</div>
+      </div>
+      <div className="storage-row-amount">
+        <NumberInput
+          id={id}
+          value={gib}
+          setValue={setGib}
+          min={settings.Min}
+          max={settings.Max}
+          step={settings.Step}
+          snapStep={REQUESTED_SIZE_STEP_GIB}
+          unit="GiB"
+          accessibleName={label}
         />
-      )}
+        {note && <div className="field-note">{note}</div>}
+        {gib > 0 && (
+          <Formula
+            lines={[
+              {
+                expression: `${blockCount}${factor} × ${blockRate} × ${hours} h`,
+                result: cost,
+              },
+            ]}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -106,7 +121,7 @@ export default function StorageSection() {
     <Section
       id="storage-section"
       title="Storage"
-      subtitle={`Billed in ${STORAGE_BLOCK_SIZE_GIB} GiB blocks at ${blockRate} per block.`}
+      subtitle={`Volumes your applications keep their data on, billed in ${STORAGE_BLOCK_SIZE_GIB} GiB blocks at ${blockRate} per block.`}
       subtotal={subtotal}
       optional
     >
@@ -114,7 +129,18 @@ export default function StorageSection() {
         <StorageRow
           id="gib-quantity-input"
           label="Standard storage"
-          hint={`Persistent volumes used by your workloads and modules. The first ${FREE_GIB} GiB are included for the cluster's operational data.`}
+          access="One workload per volume"
+          description={
+            <>
+              Persistent disk volumes for application data, requested with
+              persistent volume claims (PVCs). Each volume is used by a single
+              workload. The first {FREE_GIB} GiB are included for the
+              cluster&apos;s operational data.{' '}
+              <HelpLink docKey="persistent-storage">
+                Managing persistent storage
+              </HelpLink>
+            </>
+          }
           quantityAtom={GiBQuantityState}
           settings={config.Storage}
           multiplier={1}
@@ -124,18 +150,34 @@ export default function StorageSection() {
         <StorageRow
           id="nfs-gib-quantity-input"
           label="NFS storage"
-          hint={`Shared file storage, billed at ${config.NFSStorage.multiplier}× the block price.`}
+          access="Shared across workloads"
+          description={
+            <>
+              Network file storage that several workloads, on any node, can use
+              at the same time. Provided by the Cloud Manager module and billed
+              at {config.NFSStorage.multiplier}× the block price.{' '}
+              <HelpLink docKey="nfs">About NFS storage</HelpLink>
+            </>
+          }
           quantityAtom={nfsGiBQuantityState}
           settings={config.NFSStorage}
           multiplier={config.NFSStorage.multiplier}
           freeBlocks={0}
           cost={breakdown.nfs}
-          docKey="nfs"
         />
         <StorageRow
           id="snapshot-gib-quantity-input"
           label="Snapshot storage"
-          hint="Space used by volume snapshots, billed at the block price without a free block."
+          access="Copies of volumes"
+          description={
+            <>
+              Point-in-time copies of your volumes, for example as backups.
+              Billed at the block price, without a free block.{' '}
+              <HelpLink docKey="volume-snapshots">
+                About volume snapshots
+              </HelpLink>
+            </>
+          }
           quantityAtom={snapshotGiBQuantityState}
           settings={config.SnapshotStorage}
           multiplier={config.SnapshotStorage.multiplier}
@@ -145,8 +187,9 @@ export default function StorageSection() {
       </div>
       {breakdown.nodeVolume > 0 && (
         <div className="storage-node-volume">
-          Includes <strong>{formatCU(breakdown.nodeVolume)}</strong> for extra
-          node disks configured in the worker node pools.
+          Also counted here: <strong>{formatCU(breakdown.nodeVolume)}</strong>{' '}
+          for extra node disk set in the worker node pools. Node disks hold
+          container images and logs, not application data.
         </div>
       )}
     </Section>
