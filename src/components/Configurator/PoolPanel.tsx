@@ -7,7 +7,6 @@ import {
   SegmentedButtonItem,
   Select,
   Tag,
-  Text,
   Title,
 } from '@ui5/webcomponents-react';
 import config from '../../config.json';
@@ -128,28 +127,20 @@ export default function PoolPanel({
     >
       <div className="pool-content">
         <div className="pool-fields">
-          <Field
-            label="Machine type"
-            wide
-            hint={
-              isBase ? (
-                'The base pool always runs General Purpose machines. Add a worker node pool to use another type.'
-              ) : (
+          {/* The base pool's type is fixed; its header tag shows it. */}
+          {!isBase && (
+            <Field
+              label="Machine type"
+              wide
+              hint={
                 <>
-                  Types other than General Purpose are not available in every
-                  region, cloud provider or zone.{' '}
+                  Availability varies by cloud provider, region and zone.{' '}
                   <HelpLink docKey="machine-types">
                     Machine types and availability
                   </HelpLink>
                 </>
-              )
-            }
-          >
-            {isBase ? (
-              <Text className="pool-machine-type-fixed">
-                {machine.machineType.value}
-              </Text>
-            ) : (
+              }
+            >
               <SegmentedButton
                 id={`${id}-machine-type`}
                 className="pool-machine-type"
@@ -182,16 +173,15 @@ export default function PoolPanel({
                   </SegmentedButtonItem>
                 ))}
               </SegmentedButton>
-            )}
-          </Field>
+            </Field>
+          )}
 
           <Field
             label="VM size"
             htmlFor={`${id}-vm-size`}
             hint={
               <>
-                Kyma modules also run on these nodes and use part of their
-                capacity.{' '}
+                Kyma modules use part of each node&apos;s capacity.{' '}
                 <HelpLink docKey="module-sizing">Module sizing</HelpLink>
               </>
             }
@@ -224,8 +214,8 @@ export default function PoolPanel({
             htmlFor={`${id}-nodes`}
             hint={
               <>
-                Autoscaler minimum: you pay for at least this many nodes.
-                Scaling above it adds node-hours.{' '}
+                You always pay for at least this many; scaling up adds
+                node-hours.{' '}
                 <HelpLink docKey="autoscaler-min">
                   How the minimum works
                 </HelpLink>
@@ -248,9 +238,8 @@ export default function PoolPanel({
             htmlFor={`${id}-volume`}
             hint={
               <>
-                Each node&apos;s disk holds container images and logs. Add space
-                if they need more than the included {includedVolume} GiB; for
-                application data, use Storage.{' '}
+                For container images and logs beyond the included{' '}
+                {includedVolume} GiB. Application data goes in Storage.{' '}
                 <HelpLink docKey="additional-volume">
                   About additional node disk
                 </HelpLink>

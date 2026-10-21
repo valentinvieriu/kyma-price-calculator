@@ -1,7 +1,8 @@
 :root {
-  /* Content top offset (navbar height + gap); shared by the .App margin and the sticky
-     panel's `top` so they can't desync. */
-  --page-top-offset: calc(3.5rem + 20px);
+  /* Fixed shell bar height, and where content below it starts (shell bar + gap); shared
+     by the .App margin, the sticky panel's `top` and jump targets so they can't desync. */
+  --shell-height: 3.5rem;
+  --page-top-offset: calc(var(--shell-height) + 20px);
 }
 
 /* Horizon's page canvas: cards stand out against it without extra borders. */

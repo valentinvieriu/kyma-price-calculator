@@ -27,35 +27,37 @@ export default function PageHeader({ onShowAssumptions }: Props) {
 
   return (
     <header className="page-header">
-      <div className="page-header-top">
-        <div>
-          <Title
-            level="H1"
-            size="H2"
-            wrappingType="Normal"
-            className="page-header-title"
-          >
-            Estimate the costs for your SAP BTP, Kyma runtime
-          </Title>
-          <Text className="page-header-subtitle">
-            Configure your cluster and see how each choice affects the monthly
-            price.
-          </Text>
+      <div className="page-header-content">
+        <div className="page-header-top">
+          <div>
+            <Title
+              level="H1"
+              size="H3"
+              wrappingType="Normal"
+              className="page-header-title"
+            >
+              Estimate the costs for your SAP BTP, Kyma runtime
+            </Title>
+            <Text className="page-header-subtitle">
+              Configure your cluster and see how each choice affects the monthly
+              price.
+            </Text>
+          </div>
+          <div className="page-header-actions">
+            <Button icon="chain-link" design="Transparent" onClick={copyLink}>
+              Copy link
+            </Button>
+            <Button
+              icon="reset"
+              design="Transparent"
+              onClick={() => setSnapshot(DEFAULT_SNAPSHOT)}
+            >
+              Reset
+            </Button>
+          </div>
         </div>
-        <div className="page-header-actions">
-          <Button icon="chain-link" onClick={copyLink}>
-            Copy link
-          </Button>
-          <Button
-            icon="reset"
-            design="Transparent"
-            onClick={() => setSnapshot(DEFAULT_SNAPSHOT)}
-          >
-            Reset
-          </Button>
-        </div>
+        <PricingModel onShowAssumptions={onShowAssumptions} />
       </div>
-      <PricingModel onShowAssumptions={onShowAssumptions} />
       <Toast open={toast !== null} onClose={() => setToast(null)}>
         {toast}
       </Toast>

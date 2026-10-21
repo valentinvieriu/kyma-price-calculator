@@ -17,12 +17,13 @@ export default function BaselineControls() {
 
   if (!baseline) {
     return (
-      <div className="summary-baseline">
+      <div className="summary-baseline summary-baseline--empty">
         <Text className="summary-hint">
           Pin this estimate, then change the configuration to compare.
         </Text>
         <Button
           icon="pushpin-off"
+          design="Transparent"
           onClick={() => setBaseline({ snapshot, totalCosts })}
         >
           Pin as baseline

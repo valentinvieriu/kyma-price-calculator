@@ -1,3 +1,4 @@
 .App {
-  margin-top: var(--page-top-offset);
+  /* The page header band starts right below the fixed shell bar. */
+  margin-top: var(--shell-height);
 }

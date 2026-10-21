@@ -23,9 +23,9 @@ export default function MainContentContainer() {
   };
 
   return (
-    <main className="page">
+    <main>
       <PageHeader onShowAssumptions={showAssumptions} />
-      <div className="page-grid">
+      <div className="page page-grid">
         <div className="page-config">
           <Configurator />
           <AssumptionsPanel

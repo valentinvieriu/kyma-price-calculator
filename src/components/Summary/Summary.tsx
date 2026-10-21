@@ -21,8 +21,9 @@ function trend(current: number, baseline?: number) {
   return current > baseline ? 'Up' : 'Down';
 }
 
-// Kept short so the total and the comparison stay visible together; the
-// itemised list is collapsed because each section already shows its formulas.
+// Kept short so the total, its make-up and the comparison stay visible
+// together; the itemised list is collapsed because each section already shows
+// its formulas.
 export default function Summary() {
   const totalCosts = useAtomValue(totalCostsAtom);
   const baseline = useAtomValue(baselineState);
@@ -52,11 +53,11 @@ export default function Summary() {
     >
       <div className="summary-body">
         <BillingAssumptions />
+        <section aria-label="Cost by category" className="summary-composition">
+          <CostBar />
+        </section>
         <section aria-label="Compare with a baseline">
           <BaselineControls />
-        </section>
-        <section aria-label="Cost by category">
-          <CostBar />
         </section>
         <Panel
           className="summary-breakdown"

@@ -1,10 +1,8 @@
+/* Content width, shared by the header band and the configuration below it. */
 .page {
   max-width: 90rem;
   margin: 0 auto;
-  padding: 0 1.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  padding: 1.5rem 1.5rem 2rem;
 }
 
 .page-grid {
@@ -31,7 +29,7 @@
 
 @media (max-width: 960px) {
   .page {
-    padding: 0 1rem 6rem;
+    padding: 1rem 1rem 6rem;
   }
 
   .page-grid {
@@ -46,6 +44,6 @@
 }
 
 /* Keep in-page jump targets clear of the fixed navigation bar. */
-.page [id] {
+main [id] {
   scroll-margin-top: var(--page-top-offset);
 }

@@ -71,10 +71,6 @@
   }
 }
 
-.pool-machine-type-fixed {
-  font-family: var(--sapFontBoldFamily);
-}
-
 /* Phones: let the pool totals wrap rather than cut off. */
 @media (max-width: 600px) {
   .pool-header-summary {

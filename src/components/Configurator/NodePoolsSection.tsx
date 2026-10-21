@@ -43,10 +43,11 @@ export default function NodePoolsSection() {
     <Section
       id="node-pools-section"
       title="Worker node pools"
-      subtitle="Billed per node and hour. The hourly rate depends on the VM size."
+      subtitle="Billed per node and hour by VM size. The base pool runs General Purpose machines; add a pool for other machine types."
       subtotal={subtotal}
     >
-      <ClusterResources />
+      {/* With one pool its header already shows these totals. */}
+      {additional.length > 0 && <ClusterResources />}
       <PoolPanel
         id="base-pool"
         title="Base worker node pool"

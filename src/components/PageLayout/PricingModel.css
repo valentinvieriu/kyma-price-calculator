@@ -1,11 +1,3 @@
-/* Looks like the ui5-card sections below it. */
-.pricing-model {
-  padding: 1rem;
-  background: var(--sapTile_Background);
-  border-radius: var(--sapTile_BorderCornerRadius);
-  box-shadow: var(--sapContent_Shadow0);
-}
-
 .pricing-model-header {
   display: flex;
   align-items: baseline;
@@ -26,7 +18,7 @@
 }
 
 .pricing-model-lead {
-  margin: 0.25rem 0 0.75rem;
+  margin: 0.25rem 0 0.5rem;
   color: var(--sapContent_LabelColor);
   font-size: var(--sapFontSize);
 }
@@ -42,6 +34,8 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.25rem;
+  /* Term text lines up with the heading; the padding is only for hover. */
+  margin-inline-start: -0.625rem;
 }
 
 .pricing-group {
@@ -62,6 +56,8 @@
   display: flex;
   justify-content: center;
   gap: 0.25rem;
+  /* Spans the term text, not the hover padding around it. */
+  margin-inline: 0.625rem;
   padding-top: 0.25rem;
   border-top: 1px solid var(--sapGroup_TitleBorderColor, #d9d9d9);
   font-size: var(--sapFontSmallSize);
@@ -199,6 +195,10 @@
     margin-top: 0.25rem;
   }
 
+  .pricing-equation {
+    margin-inline-start: 0;
+  }
+
   .pricing-equation,
   .pricing-group-terms {
     flex-direction: column;
@@ -226,6 +226,7 @@
   }
 
   .pricing-group-caption {
+    margin-inline: 0;
     border-top: 1px solid var(--sapGroup_TitleBorderColor, #d9d9d9);
     border-bottom: 1px solid var(--sapGroup_TitleBorderColor, #d9d9d9);
     font-size: var(--sapFontSize);

@@ -1,15 +1,25 @@
 .summary-body {
   display: flex;
   flex-direction: column;
-  padding: 0 1rem 1rem;
+  padding: 0 1rem 0.5rem;
 }
 
 .summary-body > section {
-  padding: 0.875rem 0;
+  padding: 1rem 0;
 }
 
 .summary-body > * + * {
   border-top: 1px solid var(--sapList_BorderColor);
+}
+
+/* The billing line and the cost bar belong to the total above them. */
+.summary-body > .summary-assumptions {
+  padding-top: 0;
+}
+
+.summary-body > .summary-composition {
+  border-top: none;
+  padding-top: 0.25rem;
 }
 
 .summary-hint {
@@ -22,6 +32,18 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.5rem;
+}
+
+/* Before pinning: one quiet row, the hint beside its action. */
+.summary-baseline--empty {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.summary-baseline--empty ui5-button {
+  flex-shrink: 0;
 }
 
 .summary-baseline-values {
@@ -38,8 +60,10 @@
   gap: 0.5rem;
 }
 
-/* A plain row between the dividers, not a rounded box inside the card. */
+/* A plain row between the dividers, not a rounded box inside the card, with a
+   label-sized title so it doesn't compete with the total. */
 .summary-breakdown {
+  --sapGroup_Title_FontSize: var(--sapFontSize);
   border-radius: 0;
 }
 
@@ -53,7 +77,17 @@
   padding-inline: 0;
 }
 
+/* Export sits on the card's bottom edge; the buttons carry their own padding. */
+.summary-body > section:last-child {
+  padding-block: 0.5rem 0;
+  margin-inline-start: -0.5rem;
+}
+
 .summary-assumptions {
-  font-size: var(--sapFontSize);
+  font-size: var(--sapFontSmallSize);
   color: var(--sapContent_LabelColor);
+}
+
+.summary-assumptions ui5-link {
+  font-size: var(--sapFontSmallSize);
 }

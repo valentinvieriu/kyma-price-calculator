@@ -11,11 +11,11 @@
   border-bottom: 1px solid var(--sapGroup_TitleBorderColor, #d9d9d9);
 }
 
+/* Secondary to the section subtotal in the card header. */
 .storage-group-subtotal {
   white-space: nowrap;
-  font-family: var(--sapFontBoldFamily);
   font-size: var(--sapFontSize);
-  color: var(--sapTextColor);
+  color: var(--sapContent_LabelColor);
   font-variant-numeric: tabular-nums;
 }
 
