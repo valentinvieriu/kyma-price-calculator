@@ -19,8 +19,10 @@ about: Propose a new SIG or WG
 **Name**
 
 - Full name of the group:
+
 <!-- Specify the abbreviated name for slack channels, issue labels, and pull request labels.
 The abbreviate name must be no longer than six characters. -->
+
 - Abbreviated name:
 
 **Earliest start date**

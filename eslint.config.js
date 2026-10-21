@@ -1,10 +1,8 @@
 import js from '@eslint/js';
 import globals from 'globals';
 import { globalIgnores } from 'eslint/config';
-import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
-import pluginTypeScript from '@typescript-eslint/eslint-plugin';
-import parserTypeScript from '@typescript-eslint/parser';
+import tseslint from 'typescript-eslint';
 
 export default [
   js.configs.recommended,
@@ -12,7 +10,7 @@ export default [
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
-      parser: parserTypeScript,
+      parser: tseslint.parser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -23,19 +21,10 @@ export default [
       globals: { ...globals.browser, ...globals.node },
     },
     plugins: {
-      react: pluginReact,
       'react-hooks': pluginReactHooks,
-      '@typescript-eslint': pluginTypeScript,
+      '@typescript-eslint': tseslint.plugin,
     },
-    settings: { react: { version: 'detect' } },
     rules: {
-      // React
-      'react/prop-types': 'off',
-      'react/react-in-jsx-scope': 'off',
-      'react/jsx-uses-react': 'off',
-      'react/jsx-uses-vars': 'off',
-      'react/jsx-filename-extension': [1, { extensions: ['.tsx', '.jsx'] }],
-
       // React Hooks
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',

@@ -9,7 +9,7 @@ The Price Calculator for Kyma. It's based on the [ReactJS](https://reactjs.org/)
 ## Prerequisites
 
 - [`npm`](https://www.npmjs.com/) in version 11.5.x or higher
-- [`node`](https://nodejs.org/en/) in version 22.x or higher
+- [`node`](https://nodejs.org/en/) in version 22.22.1 or higher, 24.x LTS recommended (see `.nvmrc`)
 
 ## Installation
 

@@ -1,5 +1,5 @@
 import { setTheme } from '@ui5/webcomponents-base/dist/config/Theme.js';
-import '@ui5/webcomponents-react/dist/Assets';
+import '@ui5/webcomponents-react/dist/Assets.js';
 import '@ui5/webcomponents-icons/dist/AllIcons.js';
 import './App.css';
 import Navbar from './components/Navigation/Navbar';

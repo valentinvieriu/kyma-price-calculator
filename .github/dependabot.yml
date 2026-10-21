@@ -9,3 +9,11 @@ updates:
     directories: ['/', '/tests'] # Location of package manifests
     schedule:
       interval: 'weekly'
+    groups:
+      # The UI5 packages pin each other's minor version and must move together.
+      ui5:
+        patterns: ['@ui5/*']
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
