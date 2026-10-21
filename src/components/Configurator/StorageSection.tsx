@@ -15,7 +15,7 @@ import {
   toBillableBlocks,
 } from '../../calculatorFunctions/storageCosts/storageBlocks';
 import { formatCU, formatNumber, plural } from '../../utils/format';
-import provisionedNote from '../common/provisionedNote';
+import billedSizeNote from '../common/billedSizeNote';
 import Field from '../common/Field';
 import Formula from '../common/Formula';
 import HelpLink, { DocumentationKey } from '../common/HelpLink';
@@ -69,7 +69,7 @@ function StorageRow({
 
   return (
     <div className="storage-row">
-      <Field label={label} htmlFor={id} hint={hint} note={provisionedNote(gib)}>
+      <Field label={label} htmlFor={id} hint={hint} note={billedSizeNote(gib)}>
         <div className="storage-row-control">
           <NumberInput
             id={id}

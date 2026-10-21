@@ -1,0 +1,56 @@
+.cluster-resources {
+  padding: 0.75rem 1rem;
+  background: var(--sapNeutralBackground, #f5f6f7);
+  border-radius: var(--sapElement_BorderCornerRadius, 0.5rem);
+  font-family: var(--sapFontFamily);
+}
+
+.cluster-resources h4 {
+  margin: 0;
+}
+
+.cluster-resources dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem 1.5rem;
+  margin: 0;
+}
+
+.cluster-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.cluster-stat dt {
+  order: 1;
+  font-size: var(--sapFontSize);
+  color: var(--sapContent_LabelColor);
+}
+
+.cluster-stat dd {
+  margin: 0;
+}
+
+.cluster-stat-value {
+  font-family: var(--sapFontBoldFamily);
+  font-size: var(--sapFontHeader4Size);
+  color: var(--sapTextColor);
+  font-variant-numeric: tabular-nums;
+}
+
+.cluster-stat-detail {
+  order: 2;
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapContent_LabelColor);
+}
+
+.cluster-stat--critical .cluster-stat-value,
+.cluster-stat--critical .cluster-stat-detail {
+  color: var(--sapCriticalTextColor, #aa5808);
+}
+
+@media (max-width: 600px) {
+  .cluster-resources dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

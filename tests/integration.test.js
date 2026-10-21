@@ -60,7 +60,7 @@ context('Configure a cluster', () => {
 });
 
 context('Billing details users can verify', () => {
-  it('keeps requested storage sizes and shows how they are provisioned', () => {
+  it('keeps requested storage sizes and shows how they are billed', () => {
     cy.visit('/');
 
     cy.typeIntoStepInput('gib-quantity-input', 33);
@@ -69,7 +69,7 @@ context('Billing details users can verify', () => {
       'value',
       33,
     );
-    cy.get('#storage-section').contains('Provisioned as 64 GiB (2 blocks)');
+    cy.get('#storage-section').contains('Billed as 64 GiB (2 blocks)');
     // 2 blocks − 1 free = 1 block × 0.02 × 720 h
     cy.get('#storage-cost .value').contains('14,40 CU');
   });
@@ -100,7 +100,9 @@ context('Node pools', () => {
     cy.get('#base-pool-vm-size').should('be.visible');
     cy.get('#base-pool').shadow().find('ui5-button').first().click();
     cy.get('#base-pool-vm-size').should('not.be.visible');
-    cy.get('#base-pool').contains('3 × 2 vCPU · 8 GiB RAM');
+    cy.get('#base-pool').contains(
+      '3 nodes · 6 vCPU · 24 GiB RAM · 240 GiB disk',
+    );
   });
 });
 
@@ -128,5 +130,22 @@ context('Running hours', () => {
     cy.get('#total-capacity-units').contains('181,44');
     cy.get('#summary-hours').contains('168 h per month');
     cy.stepInputText('hours-input').should('have.value', '168');
+  });
+});
+
+context('Resources', () => {
+  it('shows what each node gets and the cluster totals', () => {
+    cy.visit('/');
+
+    cy.typeIntoStepInput('base-pool-volume', 40);
+    cy.get('#base-pool').contains(
+      '2 vCPU · 8 GiB RAM · 120 GiB disk (80 GiB included + 40 GiB extra)',
+    );
+    // Charged for whole blocks: 40 GiB extra is billed as 64 GiB.
+    cy.get('#base-pool').contains('3 nodes × 2 blocks (64 GiB)');
+
+    cy.get('ui5-button').contains('Add worker node pool').click();
+    cy.get('#cluster-resources').contains('4');
+    cy.get('#cluster-resources').contains('440 GiB');
   });
 });

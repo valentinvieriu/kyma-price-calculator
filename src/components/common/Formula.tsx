@@ -4,11 +4,13 @@ import './Formula.css';
 export interface FormulaLine {
   label?: string;
   expression: string;
-  result: number;
+  // Omitted for descriptive lines, e.g. what a node provides.
+  result?: number;
   note?: string;
 }
 
-// Shows how a cost is derived, right next to the inputs that drive it.
+// Shows how a cost is derived, right next to the inputs that drive it, or
+// plain detail lines in the same style.
 export default function Formula({ lines }: { lines: FormulaLine[] }) {
   if (lines.length === 0) return null;
 
@@ -21,8 +23,14 @@ export default function Formula({ lines }: { lines: FormulaLine[] }) {
         >
           {label && <dt>{label}</dt>}
           <dd>
-            <span className="formula-expression">{expression} =</span>{' '}
-            <strong>{formatCU(result)}</strong>
+            {result === undefined ? (
+              expression
+            ) : (
+              <>
+                <span className="formula-expression">{expression} =</span>{' '}
+                <strong>{formatCU(result)}</strong>
+              </>
+            )}
             {note && <span className="formula-note"> · {note}</span>}
           </dd>
         </div>

@@ -6,6 +6,7 @@ import {
   SegmentedButton,
   SegmentedButtonItem,
   Select,
+  Tag,
   Text,
   Title,
 } from '@ui5/webcomponents-react';
@@ -24,10 +25,12 @@ import {
   toBillableBlocks,
 } from '../../calculatorFunctions/storageCosts/storageBlocks';
 import { formatCU, formatNumber, plural } from '../../utils/format';
-import provisionedNote from '../common/provisionedNote';
+import billedSizeNote from '../common/billedSizeNote';
 import Field from '../common/Field';
 import Formula, { FormulaLine } from '../common/Formula';
 import NumberInput from '../common/NumberInput';
+import PoolResources, { resourceSummary } from './PoolResources';
+import { poolResources } from '../../calculatorFunctions/resources/calculateResources';
 import './PoolPanel.css';
 
 const machineTypes: MachineType[] = config.nodeConfig.MachineTypes;
@@ -79,7 +82,7 @@ export default function PoolPanel({
   if (extraBlocks > 0) {
     formula.push({
       label: 'Extra disk',
-      expression: `${nodes} × ${plural(extraBlocks, 'block')} × ${formatNumber(NODE_VOLUME_BLOCK_HOURLY_RATE)} CU/h × ${hours} h`,
+      expression: `${nodes} × ${plural(extraBlocks, 'block')} (${extraBlocks * STORAGE_BLOCK_SIZE_GIB} GiB) × ${formatNumber(NODE_VOLUME_BLOCK_HOURLY_RATE)} CU/h × ${hours} h`,
       result: volumeCosts,
       note: 'billed as storage',
     });
@@ -93,12 +96,16 @@ export default function PoolPanel({
       header={
         <div className="pool-header">
           <div className="pool-header-text">
-            <Title level="H4" size="H5">
-              {title}
-            </Title>
+            <div className="pool-header-title">
+              <Title level="H4" size="H5">
+                {title}
+              </Title>
+              <Tag design="Neutral" hideStateIcon>
+                {machine.machineType.value}
+              </Tag>
+            </div>
             <span className="pool-header-summary">
-              {machine.minAutoscaler} × {vmSizeLabel(machine)} ·{' '}
-              {machine.machineType.value}
+              {resourceSummary(poolResources(machine))}
             </span>
           </div>
           <span className="pool-header-cost">{formatCU(computeCosts)}</span>
@@ -168,11 +175,7 @@ export default function PoolPanel({
             )}
           </Field>
 
-          <Field
-            label="VM size"
-            htmlFor={`${id}-vm-size`}
-            hint={`Each node includes ${includedVolume} GiB of disk.`}
-          >
+          <Field label="VM size" htmlFor={`${id}-vm-size`}>
             <Select
               id={`${id}-vm-size`}
               className="vm-size-select"
@@ -216,7 +219,7 @@ export default function PoolPanel({
             label="Extra disk per node"
             htmlFor={`${id}-volume`}
             hint={`Added to the included ${includedVolume} GiB, in ${STORAGE_BLOCK_SIZE_GIB} GiB blocks.`}
-            note={provisionedNote(machine.additionalVolumeGib)}
+            note={billedSizeNote(machine.additionalVolumeGib)}
           >
             <NumberInput
               id={`${id}-volume`}
@@ -232,7 +235,11 @@ export default function PoolPanel({
             />
           </Field>
         </div>
-        <Formula lines={formula} />
+        <PoolResources pool={machine} />
+        <div>
+          <div className="section-subheading">What you pay</div>
+          <Formula lines={formula} />
+        </div>
       </div>
     </Panel>
   );

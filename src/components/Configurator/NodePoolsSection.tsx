@@ -11,6 +11,7 @@ import { nodeConfigCostsAtom, poolCostsAtom } from '../../state/costState';
 import HelpLink from '../common/HelpLink';
 import Section from '../common/Section';
 import PoolPanel from './PoolPanel';
+import ClusterResources from './ClusterResources';
 import './NodePoolsSection.css';
 
 export default function NodePoolsSection() {
@@ -45,6 +46,7 @@ export default function NodePoolsSection() {
       subtitle="Billed per node and hour. The hourly rate depends on the VM size."
       subtotal={subtotal}
     >
+      <ClusterResources />
       <PoolPanel
         id="base-pool"
         title="Base worker node pool"
