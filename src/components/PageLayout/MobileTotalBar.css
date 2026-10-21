@@ -1,0 +1,31 @@
+.mobile-total-bar {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .mobile-total-bar:not([hidden]) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    background: var(--sapPageHeader_Background, #fff);
+    box-shadow: var(--sapContent_Shadow2);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.mobile-total-bar-value {
+  font-weight: bold;
+  font-size: var(--sapFontLargeSize);
+}
+
+.mobile-total-bar-cu {
+  color: var(--sapContent_LabelColor);
+  font-size: var(--sapFontSmallSize);
+}

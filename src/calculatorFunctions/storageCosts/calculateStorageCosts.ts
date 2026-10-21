@@ -8,20 +8,49 @@ export interface StorageCostProps {
   timeConsumption: number;
 }
 
+export interface StorageBlocks {
+  standard: number;
+  nfs: number;
+  snapshot: number;
+}
+
+// Billed block count per storage type, before the NFS/snapshot multipliers.
+// Standard storage gets a fixed number of free blocks before billing; NFS and
+// snapshot do not.
+export function billableStorageBlocks(
+  props: Omit<StorageCostProps, 'timeConsumption'>,
+): StorageBlocks {
+  return {
+    standard: Math.max(
+      0,
+      toBillableBlocks(props.GiBQuantity) - config.Storage.FreeStorageBlocks,
+    ),
+    nfs: toBillableBlocks(props.nfsGiBQuantity),
+    snapshot: toBillableBlocks(props.snapshotGiBQuantity),
+  };
+}
+
+// Cost of each storage type; NFS and snapshot are priced at a multiple of the
+// standard block rate.
+export function calculateStorageCostBreakdown(
+  props: StorageCostProps,
+): StorageBlocks {
+  const blocks = billableStorageBlocks(props);
+  const blockCost = config.Storage.PricePerUnit * props.timeConsumption;
+
+  return {
+    standard: blocks.standard * blockCost,
+    nfs: config.NFSStorage.multiplier * blocks.nfs * blockCost,
+    snapshot: config.SnapshotStorage.multiplier * blocks.snapshot * blockCost,
+  };
+}
+
 export default function calculateStorageCosts(props: StorageCostProps): number {
-  const { GiBQuantity, nfsGiBQuantity, snapshotGiBQuantity, timeConsumption } =
-    props;
-
-  // Standard storage gets a fixed number of free blocks before billing; NFS and
-  // snapshot do not, but are priced at a multiple of the standard block rate.
-  const standardBlocks = Math.max(
-    0,
-    toBillableBlocks(GiBQuantity) - config.Storage.FreeStorageBlocks,
-  );
+  const blocks = billableStorageBlocks(props);
   const weightedBlocks =
-    standardBlocks +
-    config.NFSStorage.multiplier * toBillableBlocks(nfsGiBQuantity) +
-    config.SnapshotStorage.multiplier * toBillableBlocks(snapshotGiBQuantity);
+    blocks.standard +
+    config.NFSStorage.multiplier * blocks.nfs +
+    config.SnapshotStorage.multiplier * blocks.snapshot;
 
-  return weightedBlocks * config.Storage.PricePerUnit * timeConsumption;
+  return weightedBlocks * config.Storage.PricePerUnit * props.timeConsumption;
 }

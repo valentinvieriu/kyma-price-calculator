@@ -7,6 +7,7 @@ import {
   machineSetupsAtom,
   nodeConfigCostsAtom,
   poolCostsAtom,
+  storageCostBreakdownAtom,
   storageCostsAtom,
   totalCostsAtom,
 } from './costState';
@@ -201,5 +202,30 @@ describe('costReportAtom', () => {
     expect(report.storageCosts).toBe(store.get(storageCostsAtom));
     expect(report.additionalCosts).toBe(store.get(additionalCostsAtom));
     expect(report.totalCosts).toEqual(store.get(totalCostsAtom));
+  });
+});
+
+describe('storageCostBreakdownAtom', () => {
+  test('splits storage costs by source and sums to storageCostsAtom', () => {
+    store.set(GiBQuantityState, 160);
+    store.set(nfsGiBQuantityState, 64);
+    store.set(snapshotGiBQuantityState, 32);
+    store.set(baseMachineSetupState, {
+      ...store.get(baseMachineSetupState),
+      additionalVolumeGib: 32,
+    });
+
+    const breakdown = store.get(storageCostBreakdownAtom);
+    expect(breakdown.standard).toBeCloseTo(57.6, 10);
+    expect(breakdown.nfs).toBeCloseTo(2 * 3 * 14.4, 10);
+    expect(breakdown.snapshot).toBeCloseTo(14.4, 10);
+    // 3 nodes × 1 block × 0.02 × 720
+    expect(breakdown.nodeVolume).toBeCloseTo(43.2, 10);
+    expect(
+      breakdown.standard +
+        breakdown.nfs +
+        breakdown.snapshot +
+        breakdown.nodeVolume,
+    ).toBeCloseTo(store.get(storageCostsAtom), 10);
   });
 });

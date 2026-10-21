@@ -1,0 +1,22 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.field--wide {
+  grid-column: 1 / -1;
+}
+
+.field-hint {
+  color: var(--sapContent_LabelColor);
+  font-size: var(--sapFontSmallSize);
+  line-height: 1.4;
+}
+
+.field-note {
+  color: var(--sapInformativeTextColor, var(--sapInformationColor));
+  font-size: var(--sapFontSmallSize);
+  font-family: var(--sapFontBoldFamily);
+}

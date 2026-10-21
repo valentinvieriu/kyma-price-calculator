@@ -12,7 +12,10 @@ import { applyConversionRateState } from './additionalConfig/applyConversionRate
 import { redisState, RedisSize } from './additionalConfig/redisState';
 import calculateNodeConfigCosts from '../calculatorFunctions/nodeConfigCosts/calculateNodeConfigCosts';
 import calculateAdditionalNodeVolumeCosts from '../calculatorFunctions/storageCosts/calculateAdditionalNodeVolumeCosts';
-import calculateStorageCosts from '../calculatorFunctions/storageCosts/calculateStorageCosts';
+import calculateStorageCosts, {
+  calculateStorageCostBreakdown,
+  StorageBlocks,
+} from '../calculatorFunctions/storageCosts/calculateStorageCosts';
 import calculateAdditionalCosts from '../calculatorFunctions/additionalConfig/calculateAdditionalCosts';
 import calculateTotalCosts, {
   TotalCosts,
@@ -80,6 +83,22 @@ export const storageCostsAtom = atom<number>(
     }) + sum(get(poolCostsAtom).map((pool) => pool.volumeCosts)),
 );
 storageCostsAtom.debugLabel = 'storageCostsAtom';
+
+// Same total as storageCostsAtom, split by what the user configured.
+export interface StorageCostBreakdown extends StorageBlocks {
+  nodeVolume: number;
+}
+
+export const storageCostBreakdownAtom = atom<StorageCostBreakdown>((get) => ({
+  ...calculateStorageCostBreakdown({
+    GiBQuantity: get(GiBQuantityState),
+    nfsGiBQuantity: get(nfsGiBQuantityState),
+    snapshotGiBQuantity: get(snapshotGiBQuantityState),
+    timeConsumption: get(timeConsumptionState),
+  }),
+  nodeVolume: sum(get(poolCostsAtom).map((pool) => pool.volumeCosts)),
+}));
+storageCostBreakdownAtom.debugLabel = 'storageCostBreakdownAtom';
 
 // Redis is currently the only additional service.
 export const additionalCostsAtom = atom<number>((get) =>

@@ -1,0 +1,35 @@
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.page-header-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.page-header-subtitle {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--sapContent_LabelColor);
+}
+
+.page-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Phones: a smaller title so the first inputs come into view sooner. */
+@media (max-width: 600px) {
+  .page-header-title {
+    font-size: var(--sapFontHeader4Size);
+  }
+
+  .page-header-subtitle {
+    display: none;
+  }
+}

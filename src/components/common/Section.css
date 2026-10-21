@@ -1,0 +1,29 @@
+.section ui5-card-header::part(title) {
+  font-size: var(--sapFontHeader4Size);
+}
+
+.section ui5-card-header::part(subtitle) {
+  white-space: normal;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+}
+
+.section-subtotal {
+  font-family: var(--sapFontBoldFamily);
+  font-size: var(--sapFontHeader5Size);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.section-subtotal-unit {
+  font-family: var(--sapFontFamily);
+  font-size: var(--sapFontSmallSize);
+  color: var(--sapContent_LabelColor);
+}
+
+.section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0 1rem 1rem;
+}

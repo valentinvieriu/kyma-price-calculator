@@ -1,31 +1,42 @@
-import { ReactNode } from 'react';
-import MainContent from './MainContent';
-import SideContent from './SideContent';
-import DetailsTable from './DetailsTable';
+import { useState } from 'react';
+import Configurator from '../Configurator/Configurator';
+import Summary from '../Summary/Summary';
+import PageHeader from './PageHeader';
+import AssumptionsPanel from './AssumptionsPanel';
+import MobileTotalBar from './MobileTotalBar';
+import scrollToElement from '../../utils/scrollTo';
 import './MainContentContainer.css';
 
-interface ContentLayoutProps {
-  MainContent: ReactNode;
-  SideContent: ReactNode;
-}
-
-const ContentLayout = ({ MainContent, SideContent }: ContentLayoutProps) => {
-  return (
-    <div className="content-wrapper">
-      <div className="main-content">{MainContent}</div>
-      <div className="side-content">{SideContent}</div>
-    </div>
-  );
-};
-
 export default function MainContentContainer() {
+  const [assumptionsOpen, setAssumptionsOpen] = useState(false);
+
+  const showAssumptions = () => {
+    setAssumptionsOpen(true);
+    // Wait for React and then the panel itself to render the expanded content,
+    // otherwise the page is not yet tall enough to scroll the panel to the top.
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() =>
+        scrollToElement('assumptions', { block: 'start' }),
+      ),
+    );
+  };
+
   return (
-    <>
-      <ContentLayout
-        MainContent={<MainContent />}
-        SideContent={<SideContent />}
-      />
-      <DetailsTable />
-    </>
+    <main className="page">
+      <PageHeader onShowAssumptions={showAssumptions} />
+      <div className="page-grid">
+        <div className="page-config">
+          <Configurator />
+          <AssumptionsPanel
+            open={assumptionsOpen}
+            onOpenChange={setAssumptionsOpen}
+          />
+        </div>
+        <aside className="page-summary">
+          <Summary />
+        </aside>
+      </div>
+      <MobileTotalBar summaryId="cost-summary" />
+    </main>
   );
 }

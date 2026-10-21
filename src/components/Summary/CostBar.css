@@ -1,0 +1,46 @@
+.cost-bar-track {
+  display: flex;
+  gap: 2px;
+  height: 0.75rem;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  background: var(--sapNeutralBackground, #eaecee);
+}
+
+.cost-bar-segment {
+  min-width: 3px;
+  transition: flex-grow 0.2s ease;
+}
+
+.cost-bar-legend {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.375rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.cost-bar-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cost-bar-dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+}
+
+.cost-bar-share {
+  color: var(--sapContent_LabelColor);
+  font-size: var(--sapFontSmallSize);
+}
+
+.cost-bar-legend .value {
+  font-weight: bold;
+  min-width: 7rem;
+  text-align: right;
+}

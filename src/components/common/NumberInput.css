@@ -1,0 +1,14 @@
+.number-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.number-input ui5-step-input {
+  width: 10rem;
+}
+
+.number-input-unit {
+  color: var(--sapContent_LabelColor);
+  font-size: var(--sapFontSize);
+}

@@ -1,0 +1,23 @@
+.storage-rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1.25rem 1.5rem;
+}
+
+.storage-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.storage-row-control {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.storage-node-volume {
+  color: var(--sapContent_LabelColor);
+  font-size: var(--sapFontSmallSize);
+}

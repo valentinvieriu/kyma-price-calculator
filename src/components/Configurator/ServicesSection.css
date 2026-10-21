@@ -1,0 +1,10 @@
+.services-control {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.redis-select {
+  width: min(100%, 24rem);
+}

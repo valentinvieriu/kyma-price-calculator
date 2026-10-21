@@ -1,4 +1,7 @@
-import calculateStorageCosts from './calculateStorageCosts';
+import calculateStorageCosts, {
+  billableStorageBlocks,
+  calculateStorageCostBreakdown,
+} from './calculateStorageCosts';
 import { expect, test, describe } from 'vitest';
 
 // Config values (from config.json)
@@ -247,5 +250,34 @@ describe('calculateStorageCosts — combined types', () => {
     });
 
     expect(combined).toBeCloseTo(standardOnly + nfsOnly + snapshotOnly, 10);
+  });
+});
+
+describe('billableStorageBlocks and calculateStorageCostBreakdown', () => {
+  const props = {
+    GiBQuantity: 160, // 5 blocks - 1 free
+    nfsGiBQuantity: 40, // rounds up to 2 blocks
+    snapshotGiBQuantity: 32,
+    timeConsumption: 720,
+  };
+
+  test('counts billed blocks per type before multipliers', () => {
+    expect(billableStorageBlocks(props)).toEqual({
+      standard: 4,
+      nfs: 2,
+      snapshot: 1,
+    });
+  });
+
+  test('breakdown applies multipliers and sums to the total', () => {
+    const breakdown = calculateStorageCostBreakdown(props);
+
+    expect(breakdown.standard).toBeCloseTo(4 * 0.02 * 720, 10);
+    expect(breakdown.nfs).toBeCloseTo(2 * 3 * 0.02 * 720, 10);
+    expect(breakdown.snapshot).toBeCloseTo(1 * 0.02 * 720, 10);
+    expect(breakdown.standard + breakdown.nfs + breakdown.snapshot).toBeCloseTo(
+      calculateStorageCosts(props),
+      10,
+    );
   });
 });

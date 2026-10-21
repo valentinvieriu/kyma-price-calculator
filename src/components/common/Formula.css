@@ -1,0 +1,45 @@
+.formula {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--sapNeutralBackground, #f5f6f7);
+  border-radius: var(--sapElement_BorderCornerRadius, 0.5rem);
+  font-size: var(--sapFontSmallSize);
+  font-variant-numeric: tabular-nums;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.formula-line {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 0.5rem;
+}
+
+.formula-line--unlabeled {
+  grid-template-columns: 1fr;
+}
+
+.formula-line dt {
+  color: var(--sapContent_LabelColor);
+}
+
+.formula-line dd {
+  margin: 0;
+  color: var(--sapTextColor);
+}
+
+.formula-expression {
+  color: var(--sapContent_LabelColor);
+}
+
+.formula-note {
+  color: var(--sapContent_LabelColor);
+  font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .formula-line {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
