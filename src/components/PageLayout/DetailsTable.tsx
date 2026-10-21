@@ -54,21 +54,23 @@ export default function DetailsTable() {
       <TableRow>
         <TableCell>
           SAP BTP, Kyma runtime cost estimator provides costs per month. One
-          month is considered composed of{' '}
-          {config.AdditionalConfig.TimeConsumption} hours. The pricing and actual Capacity Units required for your specific use
-          of SAP BTP, Kyma runtime may vary from the provided estimate.
+          month is considered composed of {config.TimeConsumption.Default}{' '}
+          hours. The pricing and actual Capacity Units required for your
+          specific use of SAP BTP, Kyma runtime may vary from the provided
+          estimate.
         </TableCell>
       </TableRow>
       <TableRow>
         <TableCell>
           SAP BTP, Kyma runtime costs are metered hourly: cost computation will
-          start after the creation of the "Kyma Environment" is completed. 
+          start after the creation of the "Kyma Environment" is completed.
         </TableCell>
       </TableRow>
       <TableRow>
         <TableCell>
-          Non–general-purpose machine types are not always equally available across all cloud providers,
-          regions, instance sizes, or availability zones.
+          Non–general-purpose machine types are not always equally available
+          across all cloud providers, regions, instance sizes, or availability
+          zones.
         </TableCell>
       </TableRow>
       <TableRow>
@@ -87,8 +89,8 @@ export default function DetailsTable() {
       </TableRow>
       <TableRow>
         <TableCell>
-          SAP BTP, Kyma runtime is provisioned with 32GiB of storage dedicated to
-          operational data, which is provided at no additional cost. However,
+          SAP BTP, Kyma runtime is provisioned with 32GiB of storage dedicated
+          to operational data, which is provided at no additional cost. However,
           certain SAP BTP, Kyma runtime's modules may require additional
           storage. In such cases, they will create extra volumes, and you will
           incur charges for the additional storage used.

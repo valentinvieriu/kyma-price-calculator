@@ -1,6 +1,6 @@
-import PreviousStepButton from '../Buttons/PreviousStepButton';
-import XlsxDownloadButton from '../Buttons/XlsxDownloadButton';
-import CSVDownloadButton from '../Buttons/CSVDownloadButton';
+import StepButton from '../Buttons/StepButton';
+import DownloadButton from '../Buttons/DownloadButton';
+import { ExportFormat } from '../Functions/exportToFile';
 import ConversionRateInput from '../UserInputs/additionalConfig/ConversionRateInput';
 import Redis from '../UserInputs/additionalConfig/RedisSelect';
 import InfoField from '../common/InfoField';
@@ -18,7 +18,8 @@ export default function AdditionalConfigStep() {
       </div>
       <div>
         If you are unsure about how to change the default value (
-        {config.ConversionRateCUCC.toFixed(2)}), ask your SAP Sales Specialist.
+        {config.ConversionRate.Default.toFixed(2)}), ask your SAP Sales
+        Specialist.
       </div>
     </>
   );
@@ -34,10 +35,10 @@ export default function AdditionalConfigStep() {
         <Redis />
       </div>
       <div className="ButtonContainer">
-        <PreviousStepButton />
+        <StepButton direction="previous" />
         <div className="DownloadButtonContainer">
-          <CSVDownloadButton />
-          <XlsxDownloadButton />
+          <DownloadButton format={ExportFormat.CSV} />
+          <DownloadButton format={ExportFormat.XLSX} />
         </div>
       </div>
     </WizardStep>

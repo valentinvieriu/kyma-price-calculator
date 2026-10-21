@@ -1,153 +1,97 @@
-import { utils, writeFile, WorkBook, WorkSheet } from 'xlsx';
-import roundDecimals from '../../ResultStatistics/roundDecimals';
-import { MachineSetup } from '../../../state/nodes/machineSetupState';
-import { RedisSize } from '../../../state/additionalConfig/redisState';
-import { TotalCosts } from '../../../calculatorFunctions/totalCosts/calculateTotalCosts';
-import calculateNodeConfigCosts from '../../../calculatorFunctions/nodeConfigCosts/calculateNodeConfigCosts';
-import calculateAdditionalCosts from '../../../calculatorFunctions/additionalConfig/calculateAdditionalCosts';
+import { utils, writeFile } from 'xlsx';
+import { CostReport } from '../../../state/costState';
 import config from '../../../config.json';
 
-interface Props {
-  machineSetup: MachineSetup[];
-  nodeConfigCosts: number;
-  storageCosts: number;
-  storageQuantity: number;
-  nfsStorageQuantity: number;
-  snapshotStorageQuantity: number;
-  redisSize: RedisSize;
-  additionalCosts: number;
-  conversionRate: number;
-  totalCosts: TotalCosts;
-  timeConsumption: number;
-  exportFormat: ExportFormat;
-}
+export type ExportRow = (string | number)[];
 
 export enum ExportFormat {
   CSV = 'CSV',
   XLSX = 'XLSX',
 }
 
-export default function exportToFile(props: Props) {
-  const {
-    machineSetup,
-    nodeConfigCosts,
-    storageCosts,
-    storageQuantity,
-    nfsStorageQuantity,
-    snapshotStorageQuantity,
-    redisSize,
-    additionalCosts,
-    conversionRate,
-    totalCosts,
-    timeConsumption,
-    exportFormat,
-  } = props;
+const FILE_NAME = 'Kyma-Price-Calculations';
 
-  const dataArray: (string | number)[][] = [
-    ['SAP BTP Kyma Runtime - Cost Estimation'],
-    [''],
-  ];
+const cu = (num: number) => `${(Math.round(num * 100) / 100).toFixed(2)} CU`;
+const currency = (num: number) =>
+  `${(Math.round(num * 100) / 100).toFixed(2)} ${config.CurrencyCode}`;
 
-  // Node pools — one block per pool
-  machineSetup.forEach((machine, index) => {
-    const label =
-      index === 0 ? 'Base Worker Node Pool' : `Worker Node Pool ${index}`;
+export function buildExportRows(report: CostReport): ExportRow[] {
+  const rows: ExportRow[] = [['SAP BTP Kyma Runtime - Cost Estimation'], ['']];
 
-    // Volume is billed under Storage, so pool cost is compute only.
-    const poolCost = calculateNodeConfigCosts({
-      timeConsumption,
-      computeUnits: machine.VMSize.computeUnits,
-      minAutoscaler: machine.minAutoscaler,
-      machineTypeFactor: machine.machineType.multiple,
-    });
-
-    dataArray.push(
-      [label],
+  // Node pools — one block per pool. Volume is billed under Storage, so pool
+  // cost is compute only.
+  report.pools.forEach(({ machine, computeCosts }, index) => {
+    rows.push(
+      [index === 0 ? 'Base Worker Node Pool' : `Worker Node Pool ${index}`],
       ['Machine Type', machine.machineType.value],
       ['VM Size', machine.VMSize.value],
       ['Autoscaler Min', machine.minAutoscaler],
       ['Additional Volume', `${machine.additionalVolumeGib} GiB`],
-      ['Pool Cost', `${roundDecimals(poolCost, true)} CU`],
+      ['Pool Cost', cu(computeCosts)],
       [''],
     );
   });
 
-  // Time Consumption applies globally to all node pools and storage
-  dataArray.push(['Time Consumption', `${timeConsumption} hrs`], ['']);
-
-  // Storage
-  dataArray.push(
+  rows.push(
+    // Time Consumption applies globally to all node pools and storage
+    ['Time Consumption', `${report.timeConsumption} hrs`],
+    [''],
     ['Storage'],
-    ['Standard Storage', `${storageQuantity} GiB`],
-    ['NFS Storage', `${nfsStorageQuantity} GiB`],
-    ['Snapshot Storage', `${snapshotStorageQuantity} GiB`],
+    ['Standard Storage', `${report.storage.standardGib} GiB`],
+    ['NFS Storage', `${report.storage.nfsGib} GiB`],
+    ['Snapshot Storage', `${report.storage.snapshotGib} GiB`],
     [''],
-  );
-
-  // Additional services
-  dataArray.push(
     ['Additional Services'],
-    ['Redis Tier', redisSize.tier],
-    [
-      'Redis Cost',
-      `${roundDecimals(
-        calculateAdditionalCosts({
-          redisStorageGib: redisSize.storageGib,
-          timeConsumption,
-        }),
-        true,
-      )} CU`,
-    ],
-    ['Conversion Rate', conversionRate],
+    ['Redis Tier', report.redis.tier],
+    ['Redis Cost', cu(report.additionalCosts)],
+    ['Conversion Rate', report.conversionRate],
     [''],
-  );
-
-  // Summary
-  dataArray.push(
     ['Summary'],
-    ['Worker Nodes', `${roundDecimals(nodeConfigCosts, true)} CU`],
-    ['Storage', `${roundDecimals(storageCosts, true)} CU`],
-    ['Additional Services', `${roundDecimals(additionalCosts, true)} CU`],
-    ['Total (CU)', `${roundDecimals(totalCosts.CU, true)} CU`],
-    [
-      `Total (${config.CurrencyCode})`,
-      `${roundDecimals(totalCosts.CC, true)} ${config.CurrencyCode}`,
-    ],
+    ['Worker Nodes', cu(report.nodeConfigCosts)],
+    ['Storage', cu(report.storageCosts)],
+    ['Additional Services', cu(report.additionalCosts)],
+    ['Total (CU)', cu(report.totalCosts.CU)],
+    [`Total (${config.CurrencyCode})`, currency(report.totalCosts.CC)],
   );
 
-  if (exportFormat === ExportFormat.XLSX) {
-    exportToXLSX(dataArray);
+  return rows;
+}
+
+// Always quote cells so Excel never misinterprets separators or hyphens.
+function csvEscape(value: string | number): string {
+  return `"${String(value).replace(/"/g, '""')}"`;
+}
+
+export function toCSV(rows: ExportRow[]): string {
+  return rows.map((row) => row.map(csvEscape).join(',')).join('\n');
+}
+
+export default function exportToFile(report: CostReport, format: ExportFormat) {
+  const rows = buildExportRows(report);
+
+  if (format === ExportFormat.XLSX) {
+    exportToXLSX(rows);
   } else {
-    exportToCSV(dataArray);
+    exportToCSV(rows);
   }
 }
 
-function exportToXLSX(dataArray: (string | number)[][]) {
-  const worksheet: WorkSheet = utils.aoa_to_sheet(dataArray);
-  const workbook: WorkBook = utils.book_new();
-  utils.book_append_sheet(workbook, worksheet, 'Cost Estimation');
-
+function exportToXLSX(rows: ExportRow[]) {
+  const worksheet = utils.aoa_to_sheet(rows);
   worksheet['!cols'] = [{ wch: 26 }, { wch: 24 }];
 
-  writeFile(workbook, 'Kyma-Price-Calculations.xlsx');
+  const workbook = utils.book_new();
+  utils.book_append_sheet(workbook, worksheet, 'Cost Estimation');
+  writeFile(workbook, `${FILE_NAME}.xlsx`);
 }
 
-function csvEscape(value: string | number): string {
-  const str = String(value);
-  // Always quote strings so Excel never misinterprets separators or hyphens
-  return `"${str.replace(/"/g, '""')}"`;
-}
-
-function exportToCSV(dataArray: (string | number)[][]) {
-  const csvString = dataArray
-    .map((row) => row.map(csvEscape).join(','))
-    .join('\n');
-  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+function exportToCSV(rows: ExportRow[]) {
+  const blob = new Blob([toCSV(rows)], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
 
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', 'Kyma-Price-Calculations.csv');
+  link.download = `${FILE_NAME}.csv`;
   link.style.display = 'none';
 
   document.body.appendChild(link);

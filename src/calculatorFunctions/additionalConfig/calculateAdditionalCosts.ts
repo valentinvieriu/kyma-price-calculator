@@ -1,16 +1,17 @@
 import config from '../../config.json';
+import { STORAGE_BLOCK_SIZE_GIB } from '../storageCosts/storageBlocks';
 
 interface Props {
   redisStorageGib: number;
   timeConsumption: number;
 }
 
-// Redis is billed like storage: GiB are converted to 32-GiB blocks, then priced
-// at the storage block rate and scaled by time consumption.
+// Redis is priced at the storage block rate. Tier sizes are fixed and not
+// block-aligned, so the block count is intentionally fractional here.
 export default function calculateAdditionalCosts(props: Props): number {
   const { redisStorageGib, timeConsumption } = props;
 
-  const redisStorageBlocks = redisStorageGib / config.Storage.Step;
+  const redisStorageBlocks = redisStorageGib / STORAGE_BLOCK_SIZE_GIB;
 
   return redisStorageBlocks * config.Storage.PricePerUnit * timeConsumption;
 }

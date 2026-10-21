@@ -1,6 +1,11 @@
 {
   "CurrencyCode": "€",
-  "ConversionRateCUCC": 1.0,
+  "ConversionRate": {
+    "Default": 1.0,
+    "Min": 0.01,
+    "Max": 1.2,
+    "Step": 0.01
+  },
   "nodeConfig": {
     "AutoScalerMin": {
       "Default": 3,
@@ -171,9 +176,11 @@
       "PricePerUnit": 0.000625
     }
   },
-  "AdditionalConfig": {
-    "Default": 0,
-    "TimeConsumption": 720
+  "TimeConsumption": {
+    "Default": 720,
+    "Min": 1,
+    "Max": 744,
+    "Step": 1
   },
   "Storage": {
     "Default": 0,

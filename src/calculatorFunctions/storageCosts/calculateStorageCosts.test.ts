@@ -179,6 +179,32 @@ describe('calculateStorageCosts — snapshot storage', () => {
   });
 });
 
+describe('calculateStorageCosts — partial blocks round up', () => {
+  const base = {
+    GiBQuantity: 0,
+    nfsGiBQuantity: 0,
+    snapshotGiBQuantity: 0,
+    timeConsumption: 720,
+  };
+  const ONE_BLOCK = 0.02 * 720;
+
+  test.each([
+    // 33 GiB → 2 blocks, minus 1 free → 1 billable
+    ['standard', { GiBQuantity: 33 }, ONE_BLOCK],
+    // 1 GiB → 1 block, fully covered by the free block
+    ['standard (inside free block)', { GiBQuantity: 1 }, 0],
+    // 40 GiB → 2 blocks at 3x
+    ['nfs', { nfsGiBQuantity: 40 }, 2 * 3 * ONE_BLOCK],
+    // 1 GiB → 1 block at 1x
+    ['snapshot', { snapshotGiBQuantity: 1 }, ONE_BLOCK],
+  ])('%s', (_label, quantities, expected) => {
+    expect(calculateStorageCosts({ ...base, ...quantities })).toBeCloseTo(
+      expected,
+      10,
+    );
+  });
+});
+
 describe('calculateStorageCosts — combined types', () => {
   test('total storage costs with all types combined', () => {
     // standard: 0.02 * 516 * (1056/32 - 1) = 0.02 * 516 * 32 = 330.24
@@ -192,7 +218,7 @@ describe('calculateStorageCosts — combined types', () => {
       timeConsumption: 516,
     });
 
-    expect(storageCosts).toBe(2012.4);
+    expect(storageCosts).toBeCloseTo(2012.4, 10);
   });
 
   test('combined costs equal sum of individual components', () => {

@@ -1,54 +1,38 @@
+import { Option, Select } from '@ui5/webcomponents-react';
 import config from '../../../../config.json';
-import { Option, Select, Title } from '@ui5/webcomponents-react';
-import { MachineType, VMSize } from '../../../../state/nodes/machineSetupState';
+import { MachineType } from '../../../../state/nodes/machineSetupState';
+import SubHeader from '../../common/SubHeader';
+
+const machineTypes: MachineType[] = config.nodeConfig.MachineTypes;
 
 interface Props {
   machineType: MachineType;
   setMachineType: (machineType: MachineType) => void;
   workerNode: boolean;
 }
+
 export default function MachineTypeSelect({
   machineType,
   setMachineType,
   workerNode,
 }: Props) {
-  const configMachineTypes = config.nodeConfig.MachineTypes;
-
-  const onChange = (event: {
-    detail: { selectedOption: { dataset: DOMStringMap } };
-  }) => {
-    const selection = event.detail.selectedOption.dataset;
-
-    const selectedMachineType = configMachineTypes.find(
-      (machineType) => machineType.value === selection.value,
-    );
-    const vmSizeOptions: VMSize[] = selectedMachineType?.VMSizeOptions ?? [];
-
-    setMachineType({
-      value: selection.value ?? '',
-      multiple: Number(selection.multiple),
-      VMSizeOptions: vmSizeOptions,
-    });
-  };
-
   return (
     <div>
-      <Title className="wizard-subheader" level="H5" size="H5">
-        Machine Type
-      </Title>
+      <SubHeader title="Machine Type" />
       <Select
-        onChange={onChange}
+        id="machine-type-select"
         value={machineType.value}
         disabled={!workerNode}
-        id="machine-type-select"
+        onChange={(event) => {
+          const selected = machineTypes.find(
+            ({ value }) => value === event.detail.selectedOption.value,
+          );
+          if (selected) setMachineType(selected);
+        }}
       >
-        {configMachineTypes.map((item) => (
-          <Option
-            key={item.value}
-            data-value={item.value}
-            data-multiple={item.multiple}
-          >
-            {item.value}
+        {machineTypes.map(({ value }) => (
+          <Option key={value} value={value}>
+            {value}
           </Option>
         ))}
       </Select>

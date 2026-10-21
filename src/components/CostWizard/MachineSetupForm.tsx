@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { Form } from '@ui5/webcomponents-react';
 import VMsizeSelect from './UserInputs/nodes/VMsizeSelect';
 import MachineTypeSelect from './UserInputs/nodes/MachineTypeSelect';
@@ -23,34 +22,8 @@ export default function MachineSetupForm({
   updateMachine,
   workerNode,
 }: Props) {
-  const setMachineType = useCallback(
-    (machineType: MachineType) => {
-      const VMSize = machineType.VMSizeOptions[0];
-      updateMachine({ ...machine, machineType, VMSize });
-    },
-    [machine, updateMachine],
-  );
-
-  const setVMSize = useCallback(
-    (VMSize: VMSize) => {
-      updateMachine({ ...machine, VMSize });
-    },
-    [machine, updateMachine],
-  );
-
-  const setAutoScalerMin = useCallback(
-    (minAutoscaler: number) => {
-      updateMachine({ ...machine, minAutoscaler });
-    },
-    [machine, updateMachine],
-  );
-
-  const setAdditionalVolumeGib = useCallback(
-    (additionalVolumeGib: number) => {
-      updateMachine({ ...machine, additionalVolumeGib });
-    },
-    [machine, updateMachine],
-  );
+  const update = (changes: Partial<MachineSetup>) =>
+    updateMachine({ ...machine, ...changes });
 
   const machineDefaultVolume = calculateDefaultVolumeSize(
     machine.VMSize.vcpus,
@@ -61,22 +34,27 @@ export default function MachineSetupForm({
     <Form layout="S1 M1 L1 XL1">
       <MachineTypeSelect
         machineType={machine.machineType}
-        setMachineType={setMachineType}
+        setMachineType={(machineType: MachineType) =>
+          // VM sizes differ per machine type, so reset to the first one.
+          update({ machineType, VMSize: machineType.VMSizeOptions[0] })
+        }
         workerNode={workerNode}
       />
       <VMsizeSelect
         VMSize={machine.VMSize}
-        setVMSize={setVMSize}
+        setVMSize={(VMSize: VMSize) => update({ VMSize })}
         VMSizeOptions={machine.machineType.VMSizeOptions}
       />
       <MinAutoscalerInputField
         autoScalerMin={machine.minAutoscaler}
-        setAutoScalerMin={setAutoScalerMin}
+        setAutoScalerMin={(minAutoscaler) => update({ minAutoscaler })}
         workerNode={workerNode}
       />
       <AdditionalNodeVolumeInputField
         additionalVolumeGib={machine.additionalVolumeGib}
-        setAdditionalVolumeGib={setAdditionalVolumeGib}
+        setAdditionalVolumeGib={(additionalVolumeGib) =>
+          update({ additionalVolumeGib })
+        }
         machineDefaultVolume={machineDefaultVolume}
       />
     </Form>

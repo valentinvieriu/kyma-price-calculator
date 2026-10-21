@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, ChangeEvent, KeyboardEvent } from 'react';
 import './SpinnerInput.css';
+import snapToStep from './snapToStep';
 
 export interface SpinnerInputProps {
   value: number;
@@ -32,6 +33,7 @@ export default function SpinnerInput({
     const factor = Math.pow(10, decimals);
     return Math.round(n * factor) / factor;
   };
+  const snap = (n: number) => snapToStep(n, { min, max, step }) ?? min;
 
   const [inputValue, setInputValue] = useState(fmt(value));
   const isFocused = useRef(false);
@@ -92,25 +94,17 @@ export default function SpinnerInput({
 
   function handleBlur(): void {
     isFocused.current = false;
-    const val = parse(inputValue);
-    if (isNaN(val) || val < min) {
-      setInputValue(fmt(min));
-      setValue(min);
-    } else {
-      const clamped = round(Math.min(Math.max(val, min), max));
-      setValue(clamped);
-      setInputValue(fmt(clamped));
-    }
+    const snapped = snap(parse(inputValue));
+    setValue(snapped);
+    setInputValue(fmt(snapped));
   }
 
   function decrement(): void {
-    const next = round(Math.max(value - step, min));
-    setValue(next);
+    setValue(snap(value - step));
   }
 
   function increment(): void {
-    const next = round(Math.min(value + step, max));
-    setValue(next);
+    setValue(snap(value + step));
   }
 
   return (
@@ -129,8 +123,8 @@ export default function SpinnerInput({
         id={id}
         className="spinner-input"
         type="text"
-        inputMode="numeric"
-        pattern="[0-9]*"
+        inputMode={decimals > 0 ? 'decimal' : 'numeric'}
+        pattern={decimals > 0 ? '[0-9]*[.]?[0-9]*' : '[0-9]*'}
         value={inputValue}
         onChange={handleChange}
         onKeyDown={handleKeyDown}

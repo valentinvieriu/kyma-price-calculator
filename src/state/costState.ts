@@ -2,13 +2,14 @@ import { atom } from 'jotai';
 import {
   additionalMachineSetupState,
   baseMachineSetupState,
+  MachineSetup,
 } from './nodes/machineSetupState';
 import { GiBQuantityState } from './storage/GiBQuantityState';
 import { nfsGiBQuantityState } from './storage/nfsGiBQuantityState';
 import { snapshotGiBQuantityState } from './storage/snapshotGiBQuantityState';
 import { timeConsumptionState } from './additionalConfig/timeConsumptionState';
 import { applyConversionRateState } from './additionalConfig/applyConversionRateState';
-import { redisState } from './additionalConfig/redisState';
+import { redisState, RedisSize } from './additionalConfig/redisState';
 import calculateNodeConfigCosts from '../calculatorFunctions/nodeConfigCosts/calculateNodeConfigCosts';
 import calculateAdditionalNodeVolumeCosts from '../calculatorFunctions/storageCosts/calculateAdditionalNodeVolumeCosts';
 import calculateStorageCosts from '../calculatorFunctions/storageCosts/calculateStorageCosts';
@@ -17,77 +18,102 @@ import calculateTotalCosts, {
   TotalCosts,
 } from '../calculatorFunctions/totalCosts/calculateTotalCosts';
 
-export const nodeConfigCostsAtom = atom<number>((get) => {
-  const baseMachineSetup = get(baseMachineSetupState);
-  const additionalMachineSetup = get(additionalMachineSetupState);
-  const combinedMachineSetup = [baseMachineSetup, ...additionalMachineSetup];
+export interface PoolCosts {
+  machine: MachineSetup;
+  // Compute is billed under Worker Nodes, extra node volume under Storage.
+  computeCosts: number;
+  volumeCosts: number;
+}
+
+export interface CostReport {
+  pools: PoolCosts[];
+  timeConsumption: number;
+  storage: { standardGib: number; nfsGib: number; snapshotGib: number };
+  redis: RedisSize;
+  conversionRate: number;
+  nodeConfigCosts: number;
+  storageCosts: number;
+  additionalCosts: number;
+  totalCosts: TotalCosts;
+}
+
+const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);
+
+export const machineSetupsAtom = atom<MachineSetup[]>((get) => [
+  get(baseMachineSetupState),
+  ...get(additionalMachineSetupState),
+]);
+machineSetupsAtom.debugLabel = 'machineSetupsAtom';
+
+export const poolCostsAtom = atom<PoolCosts[]>((get) => {
   const timeConsumption = get(timeConsumptionState);
 
-  return combinedMachineSetup.reduce((total, machine) => {
-    const computeCost = calculateNodeConfigCosts({
+  return get(machineSetupsAtom).map((machine) => ({
+    machine,
+    computeCosts: calculateNodeConfigCosts({
       timeConsumption,
       computeUnits: machine.VMSize.computeUnits,
       minAutoscaler: machine.minAutoscaler,
       machineTypeFactor: machine.machineType.multiple,
-    });
-    return total + computeCost;
-  }, 0);
+    }),
+    volumeCosts: calculateAdditionalNodeVolumeCosts({
+      additionalVolumeGib: machine.additionalVolumeGib,
+      minAutoscaler: machine.minAutoscaler,
+      timeConsumption,
+    }),
+  }));
 });
+poolCostsAtom.debugLabel = 'poolCostsAtom';
+
+export const nodeConfigCostsAtom = atom<number>((get) =>
+  sum(get(poolCostsAtom).map((pool) => pool.computeCosts)),
+);
 nodeConfigCostsAtom.debugLabel = 'nodeConfigCostsAtom';
 
-export const storageCostsAtom = atom<number>((get) => {
-  const GiBQuantity = get(GiBQuantityState);
-  const nfsGiBQuantity = get(nfsGiBQuantityState);
-  const snapshotGiBQuantity = get(snapshotGiBQuantityState);
-  const timeConsumption = get(timeConsumptionState);
-
-  // Additional node volume is billed as storage, scaled per pool by autoscaler min.
-  const baseMachineSetup = get(baseMachineSetupState);
-  const additionalMachineSetup = get(additionalMachineSetupState);
-  const combinedMachineSetup = [baseMachineSetup, ...additionalMachineSetup];
-  const additionalVolumeCost = combinedMachineSetup.reduce(
-    (total, machine) =>
-      total +
-      calculateAdditionalNodeVolumeCosts({
-        additionalVolumeGib: machine.additionalVolumeGib,
-        minAutoscaler: machine.minAutoscaler,
-        timeConsumption,
-      }),
-    0,
-  );
-
-  return (
+export const storageCostsAtom = atom<number>(
+  (get) =>
     calculateStorageCosts({
-      GiBQuantity,
-      nfsGiBQuantity,
-      snapshotGiBQuantity,
-      timeConsumption,
-    }) + additionalVolumeCost
-  );
-});
+      GiBQuantity: get(GiBQuantityState),
+      nfsGiBQuantity: get(nfsGiBQuantityState),
+      snapshotGiBQuantity: get(snapshotGiBQuantityState),
+      timeConsumption: get(timeConsumptionState),
+    }) + sum(get(poolCostsAtom).map((pool) => pool.volumeCosts)),
+);
 storageCostsAtom.debugLabel = 'storageCostsAtom';
 
-export const additionalCostsAtom = atom<number>((get) => {
-  const redis = get(redisState);
-  const timeConsumption = get(timeConsumptionState);
-  return calculateAdditionalCosts({
-    redisStorageGib: redis.storageGib,
-    timeConsumption,
-  });
-});
+// Redis is currently the only additional service.
+export const additionalCostsAtom = atom<number>((get) =>
+  calculateAdditionalCosts({
+    redisStorageGib: get(redisState).storageGib,
+    timeConsumption: get(timeConsumptionState),
+  }),
+);
 additionalCostsAtom.debugLabel = 'additionalCostsAtom';
 
-export const totalCostsAtom = atom<TotalCosts>((get) => {
-  const nodeConfigCosts = get(nodeConfigCostsAtom);
-  const storageCosts = get(storageCostsAtom);
-  const additionalCosts = get(additionalCostsAtom);
-  const conversionRatio = get(applyConversionRateState);
-
-  return calculateTotalCosts({
-    nodeConfigCosts,
-    storageCosts,
-    additionalCosts,
-    conversionRatio,
-  });
-});
+export const totalCostsAtom = atom<TotalCosts>((get) =>
+  calculateTotalCosts({
+    nodeConfigCosts: get(nodeConfigCostsAtom),
+    storageCosts: get(storageCostsAtom),
+    additionalCosts: get(additionalCostsAtom),
+    conversionRatio: get(applyConversionRateState),
+  }),
+);
 totalCostsAtom.debugLabel = 'totalCostsAtom';
+
+// Snapshot of every input and computed cost, used for file export.
+export const costReportAtom = atom<CostReport>((get) => ({
+  pools: get(poolCostsAtom),
+  timeConsumption: get(timeConsumptionState),
+  storage: {
+    standardGib: get(GiBQuantityState),
+    nfsGib: get(nfsGiBQuantityState),
+    snapshotGib: get(snapshotGiBQuantityState),
+  },
+  redis: get(redisState),
+  conversionRate: get(applyConversionRateState),
+  nodeConfigCosts: get(nodeConfigCostsAtom),
+  storageCosts: get(storageCostsAtom),
+  additionalCosts: get(additionalCostsAtom),
+  totalCosts: get(totalCostsAtom),
+}));
+costReportAtom.debugLabel = 'costReportAtom';

@@ -3,6 +3,7 @@ import ResultStatistics from '../ResultStatistics/ResultStatistics';
 import './SideContent.css';
 import { timeConsumptionState } from '../../state/additionalConfig/timeConsumptionState';
 import SpinnerInput from '../CostWizard/UserInputs/common/SpinnerInput';
+import config from '../../config.json';
 
 export default function SideContent() {
   const [timeConsumption, setTimeConsumption] = useAtom(timeConsumptionState);
@@ -15,10 +16,9 @@ export default function SideContent() {
         <SpinnerInput
           value={timeConsumption}
           setValue={setTimeConsumption}
-          min={1}
-          max={744}
-          step={1}
-          unit=""
+          min={config.TimeConsumption.Min}
+          max={config.TimeConsumption.Max}
+          step={config.TimeConsumption.Step}
         />
         <span className="side-month-label">hrs.</span>
       </div>

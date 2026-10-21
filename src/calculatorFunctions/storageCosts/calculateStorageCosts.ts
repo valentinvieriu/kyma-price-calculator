@@ -1,4 +1,5 @@
 import config from '../../config.json';
+import { toBillableBlocks } from './storageBlocks';
 
 export interface StorageCostProps {
   GiBQuantity: number;
@@ -10,23 +11,17 @@ export interface StorageCostProps {
 export default function calculateStorageCosts(props: StorageCostProps): number {
   const { GiBQuantity, nfsGiBQuantity, snapshotGiBQuantity, timeConsumption } =
     props;
-  const PPU: number = config.Storage.PricePerUnit;
-  const nfsPPU: number = config.NFSStorage.multiplier;
-  const snapshotPPU: number = config.SnapshotStorage.multiplier;
 
   // Standard storage gets a fixed number of free blocks before billing; NFS and
-  // snapshot do not.
-  const billableStandardBlocks: number = Math.max(
+  // snapshot do not, but are priced at a multiple of the standard block rate.
+  const standardBlocks = Math.max(
     0,
-    GiBQuantity / config.Storage.Step - config.Storage.FreeStorageBlocks,
+    toBillableBlocks(GiBQuantity) - config.Storage.FreeStorageBlocks,
   );
+  const weightedBlocks =
+    standardBlocks +
+    config.NFSStorage.multiplier * toBillableBlocks(nfsGiBQuantity) +
+    config.SnapshotStorage.multiplier * toBillableBlocks(snapshotGiBQuantity);
 
-  return (
-    PPU * timeConsumption * billableStandardBlocks +
-    nfsPPU * PPU * timeConsumption * (nfsGiBQuantity / config.NFSStorage.Step) +
-    snapshotPPU *
-      PPU *
-      timeConsumption *
-      (snapshotGiBQuantity / config.SnapshotStorage.Step)
-  );
+  return weightedBlocks * config.Storage.PricePerUnit * timeConsumption;
 }

@@ -1,8 +1,7 @@
-import { FlexBox, Icon, Title, WizardStep } from '@ui5/webcomponents-react';
-import NextStepButton from '../Buttons/NextStepButton';
-import PreviousStepButton from '../Buttons/PreviousStepButton';
+import { FlexBox, Title, WizardStep } from '@ui5/webcomponents-react';
+import StepButton from '../Buttons/StepButton';
 import AddWorkerNodes from '../AddWorkerNodes';
-import openLinks from '../Functions/openLinks';
+import HelpLink from '../common/HelpLink';
 
 export default function WorkerNodesStep() {
   return (
@@ -11,20 +10,14 @@ export default function WorkerNodesStep() {
         <Title wrappingType="Normal" level="H2" size="H2">
           2. Add more worker node pools
         </Title>
-        <Icon
-          className="help-portal-link"
-          design="Information"
-          mode="Interactive"
-          name="inspect"
-          onClick={() => openLinks('worker-node-pools')}
-        />
+        <HelpLink docKey="worker-node-pools" />
       </FlexBox>
       <div className="StepContent">
         <AddWorkerNodes />
       </div>
       <div className="ButtonContainer">
-        <PreviousStepButton />
-        <NextStepButton />
+        <StepButton direction="previous" />
+        <StepButton direction="next" />
       </div>
     </WizardStep>
   );

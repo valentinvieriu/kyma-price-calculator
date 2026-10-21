@@ -22,13 +22,23 @@ export interface MachineSetup {
   additionalVolumeGib: number;
 }
 
-export const baseMachineSetupState = atom<MachineSetup>({
-  id: 'base',
-  machineType: config.nodeConfig.MachineTypes[0],
-  VMSize: config.nodeConfig.MachineTypes[0].VMSizeOptions[0],
-  minAutoscaler: config.nodeConfig.AutoScalerMin.Default,
-  additionalVolumeGib: 0,
-});
+export function createMachineSetup(
+  id: string,
+  minAutoscaler: number,
+): MachineSetup {
+  const machineType = config.nodeConfig.MachineTypes[0];
+  return {
+    id,
+    machineType,
+    VMSize: machineType.VMSizeOptions[0],
+    minAutoscaler,
+    additionalVolumeGib: config.nodeConfig.AdditionalNodeVolume.Default,
+  };
+}
+
+export const baseMachineSetupState = atom<MachineSetup>(
+  createMachineSetup('base', config.nodeConfig.AutoScalerMin.Default),
+);
 baseMachineSetupState.debugLabel = 'baseMachineSetupState';
 
 export const additionalMachineSetupState = atom<MachineSetup[]>([]);

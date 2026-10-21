@@ -5,6 +5,7 @@ import '@ui5/webcomponents-icons/dist/delete.js';
 import './AddWorkerNodes.css';
 import {
   additionalMachineSetupState,
+  createMachineSetup,
   MachineSetup,
 } from '../../state/nodes/machineSetupState';
 import MachineSetupForm from './MachineSetupForm';
@@ -18,7 +19,13 @@ interface PoolHeaderProps {
   onRemove: () => void;
 }
 
-function PoolHeader({ slot, title, summary, collapsed, onRemove }: PoolHeaderProps) {
+function PoolHeader({
+  slot,
+  title,
+  summary,
+  collapsed,
+  onRemove,
+}: PoolHeaderProps) {
   return (
     <FlexBox
       slot={slot}
@@ -55,24 +62,25 @@ export default function AddWorkerNodes() {
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
 
   const addMachineSetup = () => {
-    const newMachine: MachineSetup = {
-      id: crypto.randomUUID(),
-      machineType: config.nodeConfig.MachineTypes[0],
-      VMSize: config.nodeConfig.MachineTypes[0].VMSizeOptions[0],
-      minAutoscaler: config.nodeConfig.AutoScalerMin.DefaultWorkerNodes,
-      additionalVolumeGib: 0,
-    };
+    const newMachine = createMachineSetup(
+      crypto.randomUUID(),
+      config.nodeConfig.AutoScalerMin.DefaultWorkerNodes,
+    );
     setMachineSetup((prevState) => prevState.concat(newMachine));
   };
 
   const updateMachineSetup = (id: string, updatedMachine: MachineSetup) => {
     setMachineSetup((prevState) =>
-      prevState.map((machine) => (machine.id === id ? updatedMachine : machine)),
+      prevState.map((machine) =>
+        machine.id === id ? updatedMachine : machine,
+      ),
     );
   };
 
   const removeMachineSetup = (id: string) => {
-    setMachineSetup((prevState) => prevState.filter((machine) => machine.id !== id));
+    setMachineSetup((prevState) =>
+      prevState.filter((machine) => machine.id !== id),
+    );
   };
 
   const handleToggle = (id: string, collapsed: boolean) => {

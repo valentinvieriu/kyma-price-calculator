@@ -1,4 +1,5 @@
 import config from '../../config.json';
+import { STORAGE_BLOCK_SIZE_GIB, toBillableBlocks } from './storageBlocks';
 
 export interface AdditionalNodeVolumeCostProps {
   additionalVolumeGib: number;
@@ -6,22 +7,17 @@ export interface AdditionalNodeVolumeCostProps {
   timeConsumption: number;
 }
 
-// Billing rounds each node's extra volume up to the next 32 GiB block before
-// pricing (see consumption-reporter getSizeRoundedToBlockSize).
-const STORAGE_BLOCK_SIZE_GIB = 32;
-
+// Each node's extra volume is rounded up to whole storage blocks before pricing.
 export default function calculateAdditionalNodeVolumeCosts(
   props: AdditionalNodeVolumeCostProps,
 ): number {
   const { additionalVolumeGib, minAutoscaler, timeConsumption } = props;
-  const volumeConfig = config.nodeConfig.AdditionalNodeVolume;
-  const safeAdditional = Math.max(0, additionalVolumeGib);
   const billedExtraPerNode =
-    Math.ceil(safeAdditional / STORAGE_BLOCK_SIZE_GIB) * STORAGE_BLOCK_SIZE_GIB;
+    toBillableBlocks(additionalVolumeGib) * STORAGE_BLOCK_SIZE_GIB;
 
   return (
     billedExtraPerNode *
-    volumeConfig.PricePerUnit *
+    config.nodeConfig.AdditionalNodeVolume.PricePerUnit *
     minAutoscaler *
     timeConsumption
   );

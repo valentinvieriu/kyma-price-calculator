@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { Title, WizardStep } from '@ui5/webcomponents-react';
-import NextStepButton from '../Buttons/NextStepButton';
+import StepButton from '../Buttons/StepButton';
 import MachineSetupForm from '../MachineSetupForm';
 import { baseMachineSetupState } from '../../../state/nodes/machineSetupState';
 
@@ -22,7 +22,7 @@ export default function NodeConfigStep() {
         />
       </div>
       <div className="ButtonContainer">
-        <NextStepButton />
+        <StepButton direction="next" />
       </div>
     </WizardStep>
   );

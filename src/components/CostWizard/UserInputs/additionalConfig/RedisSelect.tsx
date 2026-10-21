@@ -1,52 +1,32 @@
-import { useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
+import { Option, Select } from '@ui5/webcomponents-react';
 import config from '../../../../config.json';
-import { FlexBox, Icon, Option, Select, Title } from '@ui5/webcomponents-react';
 import { redisState } from '../../../../state/additionalConfig/redisState';
+import SubHeader from '../../common/SubHeader';
 import './RedisSelect.css';
-import openLinks from '../../Functions/openLinks';
+
+const tiers = config.RedisCosts.Tiers;
 
 export default function RedisSelect() {
-  const redisConfigOptions = config.RedisCosts.Tiers;
-  const setRedisSize = useSetAtom(redisState);
-
-  const onChange = (event: {
-    detail: { selectedOption: { dataset: DOMStringMap } };
-  }) => {
-    const selection = event.detail.selectedOption.dataset;
-    setRedisSize({
-      storageGib: +(selection.storageGib ?? '0'),
-      tier: selection.key ?? '',
-    });
-  };
+  const [redis, setRedis] = useAtom(redisState);
 
   return (
     <div>
-      <FlexBox
-        wrap="NoWrap"
-        alignItems="Center"
-        fitContainer
-        displayInline
-        justifyContent="Start"
+      <SubHeader title="Cloud-managed Redis cache" docKey="redis" />
+      <Select
+        className="redis-select"
+        id="redis-select"
+        value={redis.tier}
+        onChange={(event) => {
+          const tier = tiers.find(
+            ({ key }) => key === event.detail.selectedOption.value,
+          );
+          if (tier) setRedis({ tier: tier.key, storageGib: tier.storageGib });
+        }}
       >
-        <Title className="wizard-subheader" level="H5" size="H5">
-          Cloud-managed Redis cache
-        </Title>
-        <Icon
-          className="help-portal-link"
-          design="Information"
-          mode="Interactive"
-          name="inspect"
-          onClick={() => openLinks('redis')}
-        />
-      </FlexBox>
-      <Select className="redis-select" onChange={onChange} id="redis-select">
-        {redisConfigOptions.map((item) => (
-          <Option
-            key={item.key}
-            data-key={item.key}
-            data-storage-gib={item.storageGib}
-          >
-            {item.key}
+        {tiers.map(({ key }) => (
+          <Option key={key} value={key}>
+            {key}
           </Option>
         ))}
       </Select>

@@ -1,10 +1,10 @@
-import GiBQuantityInputField from '../UserInputs/storage/GiBQuantityInputField';
 import { Title, WizardStep } from '@ui5/webcomponents-react';
-import PreviousStepButton from '../Buttons/PreviousStepButton';
-import NextStepButton from '../Buttons/NextStepButton';
-import NFSGiBQuantityInputField from '../UserInputs/storage/NFSGiBQuantityInputField';
-import SnapshotGiBQuantityInputField from '../UserInputs/storage/SnapshotGiBQuantityInputField';
+import StepButton from '../Buttons/StepButton';
+import StorageQuantityInput from '../UserInputs/storage/StorageQuantityInput';
 import InfoField from '../common/InfoField';
+import { GiBQuantityState } from '../../../state/storage/GiBQuantityState';
+import { nfsGiBQuantityState } from '../../../state/storage/nfsGiBQuantityState';
+import { snapshotGiBQuantityState } from '../../../state/storage/snapshotGiBQuantityState';
 import config from '../../../config.json';
 
 export default function StorageStep() {
@@ -30,14 +30,30 @@ export default function StorageStep() {
       </Title>
       <InfoField info={storageInfo} />
       <div className="StepContent">
-        <GiBQuantityInputField />
-        <NFSGiBQuantityInputField />
-        <SnapshotGiBQuantityInputField />
+        <StorageQuantityInput
+          id="gib-quantity-input"
+          title="Standard Storage: number of GiB"
+          quantityAtom={GiBQuantityState}
+          settings={config.Storage}
+        />
+        <StorageQuantityInput
+          id="nfs-gib-quantity-input"
+          title="NFS Storage: number of GiB"
+          quantityAtom={nfsGiBQuantityState}
+          settings={config.NFSStorage}
+          docKey="nfs"
+        />
+        <StorageQuantityInput
+          id="snapshot-gib-quantity-input"
+          title="Snapshot Storage: number of GiB"
+          quantityAtom={snapshotGiBQuantityState}
+          settings={config.SnapshotStorage}
+        />
       </div>
 
       <div className="ButtonContainer">
-        <PreviousStepButton />
-        <NextStepButton />
+        <StepButton direction="previous" />
+        <StepButton direction="next" />
       </div>
     </WizardStep>
   );

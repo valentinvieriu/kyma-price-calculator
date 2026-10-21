@@ -1,5 +1,7 @@
 import { atom } from 'jotai';
 import config from '../../config.json';
 
-export const applyConversionRateState = atom<number>(config.ConversionRateCUCC);
+export const applyConversionRateState = atom<number>(
+  config.ConversionRate.Default,
+);
 applyConversionRateState.debugLabel = 'applyConversionRateState';
