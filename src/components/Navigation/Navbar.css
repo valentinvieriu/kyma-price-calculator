@@ -6,8 +6,9 @@ ui5-shellbar {
 ui5-shellbar::part(root) {
   padding-left: 1rem;
   min-height: 3.5rem;
-  border-bottom: 2.5px solid rgb(41, 114, 234);
-  background-color: white;
+  /* Fixed, so it needs its own background over the scrolling page. */
+  background: var(--sapShellColor);
+  box-shadow: var(--sapContent_HeaderShadow);
   position: fixed;
   top: 0;
   left: 0;

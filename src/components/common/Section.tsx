@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Card, CardHeader, Tag } from '@ui5/webcomponents-react';
+import { Card, CardHeader } from '@ui5/webcomponents-react';
 import { formatCU } from '../../utils/format';
 import './Section.css';
 
@@ -33,15 +33,11 @@ export default function Section({
           subtitleText={subtitle}
           action={
             <span className="section-action">
-              {optional && (
-                <Tag design="Neutral" hideStateIcon>
-                  Optional
-                </Tag>
-              )}
               <span className="section-subtotal">
                 {formatCU(subtotal)}
                 <span className="section-subtotal-unit"> / month</span>
               </span>
+              {optional && <span className="section-optional">Optional</span>}
             </span>
           }
         />

@@ -30,7 +30,7 @@ import Field from '../common/Field';
 import Formula, { FormulaLine } from '../common/Formula';
 import HelpLink from '../common/HelpLink';
 import NumberInput from '../common/NumberInput';
-import PoolResources, { resourceSummary } from './PoolResources';
+import { nodeResourcesLine, resourceSummary } from './PoolResources';
 import { poolResources } from '../../calculatorFunctions/resources/calculateResources';
 import './PoolPanel.css';
 
@@ -74,6 +74,7 @@ export default function PoolPanel({
   const nodes = plural(machine.minAutoscaler, 'node');
 
   const formula: FormulaLine[] = [
+    nodeResourcesLine(machine),
     {
       label: 'Nodes',
       expression: `${nodes} × ${formatNumber(rate)} CU/h × ${hours} h`,
@@ -271,11 +272,7 @@ export default function PoolPanel({
             />
           </Field>
         </div>
-        <PoolResources pool={machine} />
-        <div>
-          <div className="section-subheading">What you pay</div>
-          <Formula lines={formula} />
-        </div>
+        <Formula lines={formula} />
       </div>
     </Panel>
   );

@@ -62,7 +62,9 @@ export default function ServicesSection() {
               </Option>
             ))}
           </Select>
-          <HelpLink docKey="redis">Redis tiers</HelpLink>
+          <HelpLink docKey="redis" subtle>
+            Redis tiers
+          </HelpLink>
         </div>
       </Field>
       {redis.storageGib > 0 && (

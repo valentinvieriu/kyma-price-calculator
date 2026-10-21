@@ -4,3 +4,16 @@
   flex-wrap: wrap;
   gap: 1rem;
 }
+
+/* Further reading, set apart from the button. */
+.node-pools-help {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+  margin-inline-start: auto;
+}
+
+.node-pools-help ui5-link {
+  font-size: var(--sapFontSmallSize);
+}

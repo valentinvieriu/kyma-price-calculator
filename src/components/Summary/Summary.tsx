@@ -8,7 +8,7 @@ import {
 import config from '../../config.json';
 import { totalCostsAtom } from '../../state/costState';
 import { baselineState } from '../../state/baselineState';
-import { formatCost } from '../../utils/format';
+import { formatCost, formatCU } from '../../utils/format';
 import CostBar from './CostBar';
 import CostBreakdown from './CostBreakdown';
 import BaselineControls from './BaselineControls';
@@ -44,8 +44,8 @@ export default function Summary() {
           <NumericSideIndicator
             id="total-capacity-units"
             titleText="Capacity units"
-            number={formatCost(totalCosts.CU)}
-            unit="CU"
+            // The component renders number and unit without a space between.
+            number={formatCU(totalCosts.CU)}
           />
         </AnalyticalCardHeader>
       }

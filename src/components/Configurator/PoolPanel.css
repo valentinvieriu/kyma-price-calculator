@@ -29,6 +29,7 @@
 }
 
 .pool-header-summary {
+  font-family: var(--sapFontFamily);
   color: var(--sapContent_LabelColor);
   font-size: var(--sapFontSmallSize);
   white-space: nowrap;
@@ -37,7 +38,7 @@
 }
 
 .pool-header-cost {
-  font-weight: bold;
+  font-family: var(--sapFontBoldFamily);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }

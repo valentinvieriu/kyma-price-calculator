@@ -1,9 +1,9 @@
+/* Looks like the ui5-card sections below it. */
 .pricing-model {
-  padding: 1rem 1.25rem;
-  background: var(--sapGroup_ContentBackground, #fff);
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: var(--sapTile_BorderCornerRadius, 0.75rem);
-  font-family: var(--sapFontFamily);
+  padding: 1rem;
+  background: var(--sapTile_Background);
+  border-radius: var(--sapTile_BorderCornerRadius);
+  box-shadow: var(--sapContent_Shadow0);
 }
 
 .pricing-model-header {
@@ -17,7 +17,12 @@
 .pricing-model-links {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.25rem 1.25rem;
+}
+
+.pricing-model-links ui5-link {
+  font-size: var(--sapFontSmallSize);
 }
 
 .pricing-model-lead {

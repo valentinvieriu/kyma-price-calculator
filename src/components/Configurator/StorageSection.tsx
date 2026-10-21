@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
-import { Label, Link, Tag } from '@ui5/webcomponents-react';
+import { Label, Link } from '@ui5/webcomponents-react';
 import config from '../../config.json';
 import {
   machineSetupsAtom,
@@ -74,9 +74,7 @@ function StorageAbout({ id, label, usage, description }: AboutProps) {
         <Label for={id} wrappingType="Normal">
           {label}
         </Label>
-        <Tag design="Neutral" hideStateIcon>
-          {usage}
-        </Tag>
+        <span className="storage-row-usage">{usage}</span>
       </div>
       <div className="storage-row-description">{description}</div>
     </div>

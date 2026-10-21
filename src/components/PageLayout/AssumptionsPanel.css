@@ -1,3 +1,8 @@
+/* Sits among the ui5-card sections, so it gets their elevation. */
+.assumptions {
+  box-shadow: var(--sapContent_Shadow0);
+}
+
 .assumptions-groups {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
@@ -20,7 +25,6 @@
 
 .assumptions-group li,
 .assumptions-disclaimer {
-  font-family: var(--sapFontFamily);
   font-size: var(--sapFontSize);
   color: var(--sapTextColor);
   line-height: 1.5;

@@ -9,7 +9,7 @@
 }
 
 .summary-body > * + * {
-  border-top: 1px solid var(--sapGroup_TitleBorderColor, #d9d9d9);
+  border-top: 1px solid var(--sapList_BorderColor);
 }
 
 .summary-hint {
@@ -38,8 +38,15 @@
   gap: 0.5rem;
 }
 
+/* A plain row between the dividers, not a rounded box inside the card. */
+.summary-breakdown {
+  border-radius: 0;
+}
+
 .summary-breakdown::part(header) {
   padding-inline: 0;
+  border-bottom: none;
+  border-radius: 0;
 }
 
 .summary-breakdown::part(content) {
@@ -47,7 +54,6 @@
 }
 
 .summary-assumptions {
-  font-family: var(--sapFontFamily);
   font-size: var(--sapFontSize);
   color: var(--sapContent_LabelColor);
 }

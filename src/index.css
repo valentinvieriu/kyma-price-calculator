@@ -4,11 +4,13 @@
   --page-top-offset: calc(3.5rem + 20px);
 }
 
+/* Horizon's page canvas: cards stand out against it without extra borders. */
 body {
   margin: 0;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  background: var(--sapBackgroundColor);
+  color: var(--sapTextColor);
+  font-family: var(--sapFontFamily);
+  font-size: var(--sapFontSize);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

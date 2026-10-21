@@ -4,7 +4,7 @@ import {
   Resources,
 } from '../../calculatorFunctions/resources/calculateResources';
 import { formatNumber, plural } from '../../utils/format';
-import Formula from '../common/Formula';
+import { FormulaLine } from '../common/Formula';
 
 const gib = (value: number) => `${formatNumber(value)} GiB`;
 
@@ -17,25 +17,17 @@ export const resourceSummary = (resources: Resources) =>
     `${gib(resources.diskGib)} disk`,
   ].join(' · ');
 
-// What each node provides; the pool totals are in the pool header.
-export default function PoolResources({ pool }: { pool: PoolInput }) {
+// What each node provides, as the first line of the pool's formula; the pool
+// totals are in the pool header.
+export function nodeResourcesLine(pool: PoolInput): FormulaLine {
   const node = nodeResources(pool);
   const disk =
     node.extraDiskGib > 0
       ? `${gib(node.diskGib)} disk (${gib(node.includedDiskGib)} included + ${gib(node.extraDiskGib)} extra)`
       : `${gib(node.diskGib)} disk (included)`;
 
-  return (
-    <div>
-      <div className="section-subheading">What you get</div>
-      <Formula
-        lines={[
-          {
-            label: 'Each node',
-            expression: `${formatNumber(node.vcpus)} vCPU · ${gib(node.memoryGib)} RAM · ${disk}`,
-          },
-        ]}
-      />
-    </div>
-  );
+  return {
+    label: 'Each node',
+    expression: `${formatNumber(node.vcpus)} vCPU · ${gib(node.memoryGib)} RAM · ${disk}`,
+  };
 }

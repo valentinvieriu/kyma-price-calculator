@@ -141,10 +141,12 @@ export default function PricingModel({ onShowAssumptions }: Props) {
           How pricing works
         </Title>
         <div className="pricing-model-links">
-          <HelpLink docKey="metering">
+          <HelpLink docKey="metering" subtle>
             How Capacity Units are calculated
           </HelpLink>
-          <Link onClick={onShowAssumptions}>Assumptions and notes</Link>
+          <Link design="Subtle" onClick={onShowAssumptions}>
+            Assumptions and notes
+          </Link>
         </div>
       </div>
 

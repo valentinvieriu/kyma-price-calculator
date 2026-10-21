@@ -14,6 +14,7 @@ export default function ExportButtons() {
         <Button
           key={format}
           icon="download"
+          design="Transparent"
           onClick={() => exportToFile(store.get(costReportAtom), format)}
         >
           Export as {format}
