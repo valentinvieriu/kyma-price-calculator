@@ -47,18 +47,22 @@ export default function CostBreakdown() {
       header: 'Storage',
       lines: [
         {
-          text: 'Standard storage',
+          text: 'Persistent volumes',
           description: `${gib.standard} GiB`,
           cu: storage.standard,
         },
-        { text: 'NFS storage', description: `${gib.nfs} GiB`, cu: storage.nfs },
         {
-          text: 'Snapshot storage',
+          text: 'Shared file storage (NFS)',
+          description: `${gib.nfs} GiB`,
+          cu: storage.nfs,
+        },
+        {
+          text: 'Volume snapshots',
           description: `${gib.snapshot} GiB`,
           cu: storage.snapshot,
         },
         {
-          text: 'Extra node disks',
+          text: 'Extra node disk',
           description: 'From worker node pools',
           cu: storage.nodeVolume,
         },
