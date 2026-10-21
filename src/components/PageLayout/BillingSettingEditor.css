@@ -1,0 +1,15 @@
+.billing-setting-editor-content {
+  max-width: 24rem;
+  padding: 0.5rem 0.25rem;
+}
+
+.hours-presets {
+  width: 100%;
+}
+
+/* Phones: three full labels don't fit side by side. */
+@media (max-width: 600px) {
+  .hours-preset-detail {
+    display: none;
+  }
+}

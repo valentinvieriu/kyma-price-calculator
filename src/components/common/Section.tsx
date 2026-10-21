@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Card, CardHeader } from '@ui5/webcomponents-react';
+import { Card, CardHeader, Tag } from '@ui5/webcomponents-react';
 import { formatCU } from '../../utils/format';
 import './Section.css';
 
@@ -8,6 +8,8 @@ interface Props {
   title: string;
   subtitle: string;
   subtotal: number;
+  // Marks sections a cluster can do without, e.g. storage and services.
+  optional?: boolean;
   children: ReactNode;
 }
 
@@ -17,6 +19,7 @@ export default function Section({
   title,
   subtitle,
   subtotal,
+  optional,
   children,
 }: Props) {
   return (
@@ -29,9 +32,16 @@ export default function Section({
           titleText={title}
           subtitleText={subtitle}
           action={
-            <span className="section-subtotal">
-              {formatCU(subtotal)}
-              <span className="section-subtotal-unit"> / month</span>
+            <span className="section-action">
+              {optional && (
+                <Tag design="Neutral" hideStateIcon>
+                  Optional
+                </Tag>
+              )}
+              <span className="section-subtotal">
+                {formatCU(subtotal)}
+                <span className="section-subtotal-unit"> / month</span>
+              </span>
             </span>
           }
         />

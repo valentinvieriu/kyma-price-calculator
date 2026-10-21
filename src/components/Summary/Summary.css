@@ -45,3 +45,9 @@
 .summary-breakdown::part(content) {
   padding-inline: 0;
 }
+
+.summary-assumptions {
+  font-family: var(--sapFontFamily);
+  font-size: var(--sapFontSize);
+  color: var(--sapContent_LabelColor);
+}

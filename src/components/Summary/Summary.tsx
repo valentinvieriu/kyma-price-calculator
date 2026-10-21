@@ -13,6 +13,7 @@ import CostBar from './CostBar';
 import CostBreakdown from './CostBreakdown';
 import BaselineControls from './BaselineControls';
 import ExportButtons from './ExportButtons';
+import BillingAssumptions from './BillingAssumptions';
 import './Summary.css';
 
 function trend(current: number, baseline?: number) {
@@ -50,6 +51,7 @@ export default function Summary() {
       }
     >
       <div className="summary-body">
+        <BillingAssumptions />
         <section aria-label="Compare with a baseline">
           <BaselineControls />
         </section>

@@ -116,3 +116,17 @@ context('Reset', () => {
     cy.get('#storage-cost .value').contains('0,00 CU');
   });
 });
+
+context('Running hours', () => {
+  it('can be set from the total with a preset', () => {
+    cy.visit('/');
+
+    cy.get('#summary-hours').click();
+    cy.get('.hours-presets').contains('1 week').click();
+
+    // 3 nodes × 0.36 CU/h × 168 h
+    cy.get('#total-capacity-units').contains('181,44');
+    cy.get('#summary-hours').contains('168 h per month');
+    cy.stepInputText('hours-input').should('have.value', '168');
+  });
+});

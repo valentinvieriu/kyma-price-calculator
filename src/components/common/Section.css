@@ -8,6 +8,14 @@
   line-clamp: unset;
 }
 
+.section-action {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
 .section-subtotal {
   font-family: var(--sapFontBoldFamily);
   font-size: var(--sapFontHeader5Size);

@@ -147,11 +147,6 @@
   font-size: var(--sapFontHeader4Size);
 }
 
-.billing-setting-editor-content {
-  max-width: 22rem;
-  padding: 0.5rem 0.25rem;
-}
-
 /* Phones: collapsed to one line; expanded as a compact receipt. */
 @media (max-width: 600px) {
   .pricing-model-summary {

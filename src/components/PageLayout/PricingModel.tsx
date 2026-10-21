@@ -15,7 +15,7 @@ import { redisState } from '../../state/additionalConfig/redisState';
 import { GiBQuantityState } from '../../state/storage/GiBQuantityState';
 import { nfsGiBQuantityState } from '../../state/storage/nfsGiBQuantityState';
 import { snapshotGiBQuantityState } from '../../state/storage/snapshotGiBQuantityState';
-import { billingEditorState } from '../../state/uiState';
+import { billingEditorState, EQUATION_TERM_IDS } from '../../state/uiState';
 import {
   formatCU,
   formatCost,
@@ -25,7 +25,6 @@ import {
 } from '../../utils/format';
 import scrollToElement from '../../utils/scrollTo';
 import { CATEGORY_COLORS } from '../common/categoryColors';
-import BillingSettingEditor from './BillingSettingEditor';
 import './PricingModel.css';
 
 // Hourly prices are multiples of 0.12, 0.02 and 0.000625 CU, so six decimals
@@ -118,7 +117,9 @@ export default function PricingModel({ onShowAssumptions }: Props) {
   // the full equation.
   const [expanded, setExpanded] = useState(false);
   // An editor opened from elsewhere needs its term on screen.
-  const showDetails = expanded || editing !== null;
+  const showDetails =
+    expanded ||
+    Object.values(EQUATION_TERM_IDS).includes(editing?.opener ?? '');
 
   const nodeCount = machines.reduce((sum, m) => sum + m.minAutoscaler, 0);
   const nodeDiskGib = machines.reduce(
@@ -204,12 +205,14 @@ export default function PricingModel({ onShowAssumptions }: Props) {
           </div>
           <Operator>×</Operator>
           <Term
-            id="hours-term"
+            id={EQUATION_TERM_IDS.hours}
             operator="×"
             title="Running hours"
             detail="per month"
             value={`${hours} h`}
-            onSelect={() => editBilling('hours')}
+            onSelect={() =>
+              editBilling({ setting: 'hours', opener: EQUATION_TERM_IDS.hours })
+            }
             editable
           />
           <Operator>=</Operator>
@@ -222,12 +225,14 @@ export default function PricingModel({ onShowAssumptions }: Props) {
           />
           <Operator>×</Operator>
           <Term
-            id="rate-term"
+            id={EQUATION_TERM_IDS.rate}
             operator="×"
             title="Conversion rate"
             detail="your price per CU"
             value={rateLabel}
-            onSelect={() => editBilling('rate')}
+            onSelect={() =>
+              editBilling({ setting: 'rate', opener: EQUATION_TERM_IDS.rate })
+            }
             editable
           />
           <Operator>=</Operator>
@@ -250,9 +255,6 @@ export default function PricingModel({ onShowAssumptions }: Props) {
           Show less
         </Button>
       </div>
-
-      <BillingSettingEditor setting="hours" opener="hours-term" />
-      <BillingSettingEditor setting="rate" opener="rate-term" />
     </section>
   );
 }

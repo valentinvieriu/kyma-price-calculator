@@ -188,7 +188,7 @@ export default function PoolPanel({
                 <Option
                   key={size.value}
                   value={size.value}
-                  additionalText={`${formatNumber(nodeHourlyRate(size.computeUnits, machine.machineType.multiple))} CU/h`}
+                  additionalText={`${calculateDefaultVolumeSize(size.vcpus, size.memoryGib)} GiB disk · ${formatNumber(nodeHourlyRate(size.computeUnits, machine.machineType.multiple))} CU/h`}
                 >
                   {`${size.vcpus} vCPU · ${size.memoryGib} GiB RAM`}
                 </Option>

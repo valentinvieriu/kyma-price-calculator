@@ -108,6 +108,7 @@ export default function StorageSection() {
       title="Storage"
       subtitle={`Billed in ${STORAGE_BLOCK_SIZE_GIB} GiB blocks at ${blockRate} per block.`}
       subtotal={subtotal}
+      optional
     >
       <div className="storage-rows">
         <StorageRow

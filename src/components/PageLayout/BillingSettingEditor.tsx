@@ -1,14 +1,26 @@
 import { ComponentType } from 'react';
 import { useAtom } from 'jotai';
-import { ResponsivePopover } from '@ui5/webcomponents-react';
+import {
+  ResponsivePopover,
+  SegmentedButton,
+  SegmentedButtonItem,
+} from '@ui5/webcomponents-react';
 import config from '../../config.json';
 import { timeConsumptionState } from '../../state/additionalConfig/timeConsumptionState';
 import { applyConversionRateState } from '../../state/additionalConfig/applyConversionRateState';
 import { BillingSetting, billingEditorState } from '../../state/uiState';
+import './BillingSettingEditor.css';
 import Field from '../common/Field';
 import NumberInput from '../common/NumberInput';
 
 const { TimeConsumption, ConversionRate, CurrencyCode } = config;
+
+// Common durations for a quick "what does this cost for…" check.
+const HOUR_PRESETS = [
+  { label: '1 day', hours: 24 },
+  { label: '1 week', hours: 7 * 24 },
+  { label: '1 month', hours: TimeConsumption.Default },
+];
 
 function HoursField() {
   const [hours, setHours] = useAtom(timeConsumptionState);
@@ -18,6 +30,25 @@ function HoursField() {
       htmlFor="hours-input"
       hint={`A full month is ${TimeConsumption.Default} h. Lower it for clusters that don't run all month.`}
     >
+      <SegmentedButton
+        className="hours-presets"
+        accessibleName="Running time presets"
+        onSelectionChange={(event) => {
+          const selected = Number(event.detail.selectedItems[0]?.dataset.hours);
+          if (selected) setHours(selected);
+        }}
+      >
+        {HOUR_PRESETS.map(({ label, hours: presetHours }) => (
+          <SegmentedButtonItem
+            key={label}
+            data-hours={presetHours}
+            selected={hours === presetHours}
+          >
+            {label}
+            <span className="hours-preset-detail"> · {presetHours} h</span>
+          </SegmentedButtonItem>
+        ))}
+      </SegmentedButton>
       <NumberInput
         id="hours-input"
         value={hours}
@@ -53,35 +84,39 @@ function ConversionRateField() {
   );
 }
 
-const editors: Record<BillingSetting, { title: string; field: ComponentType }> =
-  {
-    hours: { title: 'Running hours', field: HoursField },
-    rate: { title: 'Conversion rate', field: ConversionRateField },
-  };
+const editors: Record<
+  BillingSetting,
+  { title: string; field: ComponentType; input: string }
+> = {
+  hours: { title: 'Running hours', field: HoursField, input: 'hours-input' },
+  rate: {
+    title: 'Conversion rate',
+    field: ConversionRateField,
+    input: 'conversion-rate-input',
+  },
+};
 
-interface Props {
-  setting: BillingSetting;
-  opener: string;
-}
-
-// Edits a billing assumption in place, next to the formula term it changes.
-export default function BillingSettingEditor({ setting, opener }: Props) {
-  const [open, setOpen] = useAtom(billingEditorState);
-  const { title, field: EditorField } = editors[setting];
+// Edits a billing assumption in place, next to whatever opened it.
+export default function BillingSettingEditor() {
+  const [editor, setEditor] = useAtom(billingEditorState);
+  const {
+    title,
+    field: EditorField,
+    input,
+  } = editors[editor?.setting ?? 'hours'];
 
   return (
     <ResponsivePopover
-      opener={opener}
-      open={open === setting}
+      opener={editor?.opener}
+      open={editor !== null}
       headerText={title}
+      initialFocus={input}
       placement="Bottom"
       className="billing-setting-editor"
-      onClose={() =>
-        setOpen((current) => (current === setting ? null : current))
-      }
+      onClose={() => setEditor(null)}
     >
       <div className="billing-setting-editor-content">
-        <EditorField />
+        {editor && <EditorField />}
       </div>
     </ResponsivePopover>
   );

@@ -4,7 +4,11 @@ import { Icon, Link, Panel, Title } from '@ui5/webcomponents-react';
 import config from '../../config.json';
 import { STORAGE_BLOCK_SIZE_GIB } from '../../calculatorFunctions/storageCosts/storageBlocks';
 import scrollToElement from '../../utils/scrollTo';
-import { BillingSetting, billingEditorState } from '../../state/uiState';
+import {
+  BillingSetting,
+  billingEditorState,
+  EQUATION_TERM_IDS,
+} from '../../state/uiState';
 import './AssumptionsPanel.css';
 
 const FREE_GIB = config.Storage.FreeStorageBlocks * STORAGE_BLOCK_SIZE_GIB;
@@ -26,7 +30,7 @@ function SettingLink({
           block: 'start',
           behavior: 'instant',
         });
-        edit(setting);
+        edit({ setting, opener: EQUATION_TERM_IDS[setting] });
       }}
     >
       {children}

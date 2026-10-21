@@ -4,6 +4,7 @@ import Summary from '../Summary/Summary';
 import PageHeader from './PageHeader';
 import AssumptionsPanel from './AssumptionsPanel';
 import MobileTotalBar from './MobileTotalBar';
+import BillingSettingEditor from './BillingSettingEditor';
 import scrollToElement from '../../utils/scrollTo';
 import './MainContentContainer.css';
 
@@ -37,6 +38,7 @@ export default function MainContentContainer() {
         </aside>
       </div>
       <MobileTotalBar summaryId="cost-summary" />
+      <BillingSettingEditor />
     </main>
   );
 }

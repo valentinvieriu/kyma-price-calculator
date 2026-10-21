@@ -28,6 +28,7 @@ export default function ServicesSection() {
       title="Additional services"
       subtitle="Managed services are priced by their provisioned size."
       subtotal={subtotal}
+      optional
     >
       <Field
         label="Cloud-managed Redis cache"
