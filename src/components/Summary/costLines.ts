@@ -36,8 +36,8 @@ export function spreadShade(index: number, count: number) {
   return count < 2 ? 0 : SHADE_RANGE * (index / (count - 1) - 0.5);
 }
 
-// Every billed item, grouped like the configuration sections. Shared by the
-// itemized list and the cost flow so both always show the same charges.
+// Every billed item, grouped like the configuration sections, as shown in the
+// cost flow.
 export const costLineGroupsAtom = atom<CostLineGroup[]>((get) => {
   const storage = get(storageCostBreakdownAtom);
   const redis = get(redisState);
