@@ -4,4 +4,7 @@
 
 This folder contains documents that relate to the project.
 
-> In this document, provide the list of all documents that this folder contains, together with links to those documents and short information on what they describe.
+| Document                                                  | Description                                                                                                                         |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| [Kyma pricing, explained simply](./pricing-explained.md)  | An end-user guide to how the calculator turns a configuration into a price, with analogies, diagrams, and a worked example.         |
+| [Pricing discrepancy tracker](./pricing-discrepancies.md) | A maintainer-facing record of open differences between the calculator and the SAP documentation. It is not a billing specification. |

@@ -41,6 +41,10 @@ npm test
 
 To adjust prices or other values used for the calculations, go to the [config.json](src/config.json) file and update the corresponding entry.
 
+## How Pricing Works
+
+For a plain-language explanation of how the calculator arrives at a price, see [Kyma pricing, explained simply](docs/pricing-explained.md).
+
 ## Contributing
 
 See the [Contributing Rules](CONTRIBUTING.md).
