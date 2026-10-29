@@ -8,14 +8,14 @@ import HelpLink from '../common/HelpLink';
 import {
   BillingSetting,
   billingEditorState,
-  EQUATION_TERM_IDS,
+  BILLING_OPENER_IDS,
 } from '../../state/uiState';
 import './AssumptionsPanel.css';
 
 const FREE_GIB = config.Storage.FreeStorageBlocks * STORAGE_BLOCK_SIZE_GIB;
 
-// Opens the editor for a billing assumption in the pricing equation. Scrolls
-// instantly so the popover opens next to its (already visible) term.
+// Opens the editor for a billing assumption next to its value in the summary.
+// Scrolls instantly so the popover opens next to its (already visible) link.
 function SettingLink({
   setting,
   children,
@@ -27,11 +27,11 @@ function SettingLink({
   return (
     <Link
       onClick={() => {
-        scrollToElement('pricing-model', {
+        scrollToElement('cost-summary', {
           block: 'start',
           behavior: 'instant',
         });
-        edit({ setting, opener: EQUATION_TERM_IDS[setting] });
+        edit({ setting, opener: BILLING_OPENER_IDS[setting] });
       }}
     >
       {children}

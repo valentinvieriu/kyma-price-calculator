@@ -3,17 +3,15 @@ import {
   AnalyticalCardHeader,
   Card,
   NumericSideIndicator,
-  Panel,
 } from '@ui5/webcomponents-react';
 import config from '../../config.json';
 import { totalCostsAtom } from '../../state/costState';
 import { baselineState } from '../../state/baselineState';
 import { formatCost, formatCU } from '../../utils/format';
 import CostBar from './CostBar';
-import CostBreakdown from './CostBreakdown';
 import BaselineControls from './BaselineControls';
 import ExportButtons from './ExportButtons';
-import BillingAssumptions from './BillingAssumptions';
+import CalculationPanel from './CalculationPanel';
 import './Summary.css';
 
 function trend(current: number, baseline?: number) {
@@ -22,8 +20,7 @@ function trend(current: number, baseline?: number) {
 }
 
 // Kept short so the total, its make-up and the comparison stay visible
-// together; the itemised list is collapsed because each section already shows
-// its formulas.
+// together; every charge is in the cost flow and in the exports.
 export default function Summary() {
   const totalCosts = useAtomValue(totalCostsAtom);
   const baseline = useAtomValue(baselineState);
@@ -52,21 +49,13 @@ export default function Summary() {
       }
     >
       <div className="summary-body">
-        <BillingAssumptions />
+        <CalculationPanel />
         <section aria-label="Cost by category" className="summary-composition">
           <CostBar />
         </section>
         <section aria-label="Compare with a baseline">
           <BaselineControls />
         </section>
-        <Panel
-          className="summary-breakdown"
-          headerText="Itemized breakdown"
-          headerLevel="H4"
-          collapsed
-        >
-          <CostBreakdown />
-        </Panel>
         <section aria-label="Export">
           <ExportButtons />
         </section>

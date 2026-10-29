@@ -128,7 +128,7 @@ context('Running hours', () => {
 
     // 3 nodes × 0.36 CU/h × 168 h
     cy.get('#total-capacity-units').contains('181,44');
-    cy.get('#summary-hours').contains('168 h per month');
+    cy.get('#summary-hours').contains('168 h');
     cy.stepInputText('hours-input').should('have.value', '168');
   });
 });

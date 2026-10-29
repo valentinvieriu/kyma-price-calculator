@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useSetAtom } from 'jotai';
-import { Button, Text, Title, Toast } from '@ui5/webcomponents-react';
+import { Button, Link, Text, Title, Toast } from '@ui5/webcomponents-react';
 import {
   configSnapshotAtom,
   DEFAULT_SNAPSHOT,
 } from '../../state/configSnapshot';
-import PricingModel from './PricingModel';
+import HelpLink from '../common/HelpLink';
 import './PageHeader.css';
 
 interface Props {
@@ -38,10 +38,20 @@ export default function PageHeader({ onShowAssumptions }: Props) {
             >
               Estimate the costs for your SAP BTP, Kyma runtime
             </Title>
-            <Text className="page-header-subtitle">
-              Configure your cluster and see how each choice affects the monthly
-              price.
-            </Text>
+            <div className="page-header-subline">
+              <Text className="page-header-subtitle">
+                Configure your cluster and see how each choice affects the
+                monthly price.
+              </Text>
+              <div className="page-header-links">
+                <HelpLink docKey="metering" subtle>
+                  How Capacity Units are calculated
+                </HelpLink>
+                <Link design="Subtle" onClick={onShowAssumptions}>
+                  Assumptions and notes
+                </Link>
+              </div>
+            </div>
           </div>
           <div className="page-header-actions">
             <Button icon="chain-link" design="Transparent" onClick={copyLink}>
@@ -56,7 +66,6 @@ export default function PageHeader({ onShowAssumptions }: Props) {
             </Button>
           </div>
         </div>
-        <PricingModel onShowAssumptions={onShowAssumptions} />
       </div>
       <Toast open={toast !== null} onClose={() => setToast(null)}>
         {toast}
