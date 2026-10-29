@@ -44,3 +44,20 @@
   text-align: right;
   color: var(--sapTextColor);
 }
+
+.cost-bar-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.cost-bar-caption {
+  flex: 1;
+  color: var(--sapContent_LabelColor);
+  font-size: var(--sapFontSmallSize);
+}
+
+.cost-flow-dialog {
+  width: min(64rem, 94vw);
+}

@@ -1,0 +1,67 @@
+.cost-sankey {
+  width: 100%;
+  overflow-x: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.cost-sankey svg {
+  display: block;
+  overflow: visible;
+}
+
+.cost-sankey-links path,
+.cost-sankey-nodes rect {
+  fill: var(--sankey-color);
+}
+
+@supports (color: oklch(from red l c h)) {
+  .cost-sankey-links path,
+  .cost-sankey-nodes rect {
+    fill: oklch(from var(--sankey-color) calc(l + var(--sankey-shade)) c h);
+  }
+}
+
+.cost-sankey-links path {
+  fill-opacity: 0.4;
+  transition: fill-opacity 0.15s ease;
+}
+
+.cost-sankey-links path:hover {
+  fill-opacity: 0.65;
+}
+
+.cost-sankey-links path.cost-sankey-dim {
+  fill-opacity: 0.1;
+}
+
+.cost-sankey-label {
+  font-size: var(--sapFontSmallSize, 0.75rem);
+  fill: var(--sapContent_LabelColor);
+  pointer-events: none;
+}
+
+.cost-sankey-name {
+  fill: var(--sapTextColor);
+}
+
+/* Captions between columns sit on top of the bands. */
+.cost-sankey-label--over {
+  paint-order: stroke;
+  stroke: var(--sapTile_Background, #fff);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.cost-sankey--full .cost-sankey-label {
+  font-size: var(--sapFontSize, 0.875rem);
+}
+
+.cost-sankey--full .cost-sankey-name {
+  font-weight: bold;
+}
+
+.cost-sankey-empty {
+  margin: 0;
+  color: var(--sapContent_LabelColor);
+  font-size: var(--sapFontSmallSize);
+}
