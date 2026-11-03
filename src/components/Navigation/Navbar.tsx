@@ -4,8 +4,8 @@ import './Navbar.css';
 export default function Navbar() {
   return (
     <ShellBar
-      logo={<img alt="SAP BTP, Kyma runtime Logo" src="./kyma-logo.png" />}
-      primaryTitle="SAP Business Technology Platform, Kyma runtime"
+      logo={<img alt="Kyma runtime logo" src="./kyma-logo.png" />}
+      primaryTitle="Kyma runtime service on SAP platform"
       secondaryTitle="Cost Estimator"
     />
   );

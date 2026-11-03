@@ -43,8 +43,11 @@ const valueOf = (rows: ExportRow[], label: string) =>
 describe('buildExportRows', () => {
   const rows = buildExportRows(reportFromStore());
 
-  test('starts with the title', () => {
-    expect(rows[0]).toEqual(['SAP BTP Kyma Runtime - Cost Estimation']);
+  test('starts with the approved service name and identifies the platform', () => {
+    expect(rows[0]).toEqual([
+      'Kyma runtime service on SAP platform - Cost Estimation',
+    ]);
+    expect(rows[1]).toEqual(['Platform', 'SAP Business AI Platform']);
   });
 
   test('writes one block per node pool with its compute cost', () => {

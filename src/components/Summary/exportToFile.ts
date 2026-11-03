@@ -16,7 +16,11 @@ const currency = (num: number) =>
   `${(Math.round(num * 100) / 100).toFixed(2)} ${config.CurrencyCode}`;
 
 export function buildExportRows(report: CostReport): ExportRow[] {
-  const rows: ExportRow[] = [['SAP BTP Kyma Runtime - Cost Estimation'], ['']];
+  const rows: ExportRow[] = [
+    ['Kyma runtime service on SAP platform - Cost Estimation'],
+    ['Platform', 'SAP Business AI Platform'],
+    [''],
+  ];
 
   // Node pools — one block per pool. Volume is billed under Storage, so pool
   // cost is compute only.

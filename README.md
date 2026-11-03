@@ -4,7 +4,9 @@
 
 ## Overview
 
-The Price Calculator for Kyma. It's based on the [ReactJS](https://reactjs.org/) library.
+The Price Calculator for Kyma runtime service on SAP platform, available for SAP Business AI Platform. It's based on the [ReactJS](https://reactjs.org/) library.
+
+SAP Business AI Platform brings together SAP’s AI, data, process, and AI governance capabilities. SAP Business Technology Platform (SAP BTP) capabilities continue to be developed and augmented as part of the platform. Existing SAP BTP documentation links remain valid references for Kyma runtime capabilities.
 
 ## Prerequisites
 

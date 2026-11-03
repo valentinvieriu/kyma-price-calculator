@@ -154,8 +154,8 @@ export default function AssumptionsPanel({ open, onOpenChange }: Props) {
       </div>
       <p className="assumptions-disclaimer">
         This estimator is a free tool. It estimates the Capacity Units and{' '}
-        {config.CurrencyCode} for SAP Business Technology Platform, Kyma runtime
-        based on the assumptions above. Actual pricing and consumption for your
+        {config.CurrencyCode} for Kyma runtime on SAP Business AI Platform based
+        on the assumptions above. Actual pricing and consumption for your
         specific use may vary.
       </p>
     </Panel>

@@ -1,6 +1,6 @@
 # Kyma pricing, explained simply
 
-_How the Kyma Price Calculator turns "what I need" into "what I pay" — no cloud expertise required._
+_How the Kyma Price Calculator for Kyma runtime service on SAP platform, available for SAP Business AI Platform, turns "what I need" into "what I pay" — no cloud expertise required._
 
 ---
 

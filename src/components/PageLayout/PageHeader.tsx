@@ -36,12 +36,12 @@ export default function PageHeader({ onShowAssumptions }: Props) {
               wrappingType="Normal"
               className="page-header-title"
             >
-              Estimate the costs for your SAP BTP, Kyma runtime
+              Estimate the costs for your Kyma runtime
             </Title>
             <div className="page-header-subline">
               <Text className="page-header-subtitle">
-                Configure your cluster and see how each choice affects the
-                monthly price.
+                Configure your cluster on SAP Business AI Platform and see how
+                each choice affects the monthly price.
               </Text>
               <div className="page-header-links">
                 <HelpLink docKey="metering" subtle>
