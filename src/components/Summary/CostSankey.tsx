@@ -1,7 +1,7 @@
 import { CSSProperties, useId, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { scenarioCategoriesAtom } from '../../state/costState';
-import { formatCU } from '../../utils/format';
+import { formatCU, formatCurrency } from '../../utils/format';
 import useWidth from '../common/useWidth';
 import { applyConversionRateState } from '../../state/additionalConfig/applyConversionRateState';
 import { costLineGroupsAtom } from './costLines';
@@ -119,19 +119,22 @@ const captionBottom = (node: SankeyNode, lineHeight: number) =>
   (node.y0 + node.y1) / 2 + (node.caption.length * lineHeight) / 2;
 
 // The compact flow has no room for a total column, so the categories are
-// summed up below their captions, like a column of figures.
+// summed up below their captions, like a column of figures. The flow is in CU;
+// at a price other than 1 per CU the amount paid follows.
 function TotalLine({
   categories,
   y,
   width,
   lineHeight,
   totalCU,
+  paid,
 }: {
   categories: SankeyNode[];
   y: number;
   width: number;
   lineHeight: number;
   totalCU: number;
+  paid?: number;
 }) {
   const x = categories[0].x1 + LABEL_GAP;
   return (
@@ -149,6 +152,11 @@ function TotalLine({
         <tspan x={x} dy={lineHeight} className="cost-sankey-name">
           {formatCU(totalCU)}
         </tspan>
+        {paid !== undefined && (
+          <tspan x={x} dy={lineHeight}>
+            You pay {formatCurrency(paid)}
+          </tspan>
+        )}
       </text>
     </g>
   );
@@ -177,6 +185,8 @@ export default function CostSankey({ detail }: { detail: Detail }) {
     ({ column }) => column === layout.columns - 1,
   );
   const showTotal = detail === 'compact' && categories.length > 0;
+  const showPaid = conversionRate !== 1;
+  const totalLines = showPaid ? 3 : 2;
   const totalY = showTotal
     ? Math.max(
         ...categories.map((node) =>
@@ -185,14 +195,19 @@ export default function CostSankey({ detail }: { detail: Detail }) {
       ) + TOTAL_GAP
     : 0;
   const bottom = showTotal
-    ? Math.max(layout.height, totalY + TOTAL_GAP + 2 * lineHeight - inset)
+    ? Math.max(
+        layout.height,
+        totalY + TOTAL_GAP + totalLines * lineHeight - inset,
+      )
     : layout.height;
   const height = bottom + 2 * inset;
 
   const charges = layout.nodes.filter(({ column }) => column === 0);
   const description = `Cost flow: ${charges
     .map(({ caption }) => caption.join(' '))
-    .join(', ')}. Total ${formatCU(totalCosts.CU)}.`;
+    .join(', ')}. Total ${formatCU(totalCosts.CU)}${
+    showPaid ? `, you pay ${formatCurrency(totalCosts.CC)}` : ''
+  }.`;
 
   const isLit = (source: string, target: string, key: string) =>
     active === null || active === key || active === source || active === target;
@@ -292,6 +307,7 @@ export default function CostSankey({ detail }: { detail: Detail }) {
               width={layout.width}
               lineHeight={lineHeight}
               totalCU={totalCosts.CU}
+              paid={showPaid ? totalCosts.CC : undefined}
             />
           )}
         </svg>
