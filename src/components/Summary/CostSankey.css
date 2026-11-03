@@ -9,29 +9,38 @@
   overflow: visible;
 }
 
-.cost-sankey-links path,
-.cost-sankey-nodes rect {
+.cost-sankey-links path:not(.cost-sankey-overlay),
+.cost-sankey-nodes rect:not(.cost-sankey-overlay) {
   fill: var(--sankey-color);
 }
 
 @supports (color: oklch(from red l c h)) {
-  .cost-sankey-links path,
-  .cost-sankey-nodes rect {
+  .cost-sankey-links path:not(.cost-sankey-overlay),
+  .cost-sankey-nodes rect:not(.cost-sankey-overlay) {
     fill: oklch(from var(--sankey-color) calc(l + var(--sankey-shade)) c h);
   }
 }
 
-.cost-sankey-links path {
+.cost-sankey-links path:not(.cost-sankey-overlay) {
   fill-opacity: 0.4;
   transition: fill-opacity 0.15s ease;
 }
 
-.cost-sankey-links path:hover {
+.cost-sankey-links g:hover path:not(.cost-sankey-overlay) {
   fill-opacity: 0.65;
 }
 
 .cost-sankey-links path.cost-sankey-dim {
   fill-opacity: 0.1;
+}
+
+.cost-sankey-overlay {
+  pointer-events: none;
+}
+
+.cost-sankey-hatch {
+  fill: var(--sapTile_Background, #fff);
+  fill-opacity: 0.55;
 }
 
 .cost-sankey-label {

@@ -13,7 +13,7 @@ export function formatCost(num: number): string {
 // decimals, but enough precision to show rates like 0,02.
 export function formatNumber(num: number, maxDecimals = 4): string {
   return num.toLocaleString(LOCALE, {
-    minimumFractionDigits: Number.isInteger(num) ? 0 : 2,
+    minimumFractionDigits: Number.isInteger(num) ? 0 : Math.min(2, maxDecimals),
     maximumFractionDigits: maxDecimals,
   });
 }

@@ -1,6 +1,7 @@
-import { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
+import { CSSProperties, useId, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { totalCostsAtom } from '../../state/costState';
+import { scenarioCategoriesAtom } from '../../state/costState';
+import useWidth from '../common/useWidth';
 import { applyConversionRateState } from '../../state/additionalConfig/applyConversionRateState';
 import { costLineGroupsAtom } from './costLines';
 import { buildCostFlow } from './costFlow';
@@ -74,23 +75,6 @@ function layoutOptions(
       };
 }
 
-// SVG has no layout of its own, so track the container width to keep text at
-// its normal size instead of scaling the whole drawing.
-function useWidth(fallback: number) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(fallback);
-  useEffect(() => {
-    const element = ref.current;
-    if (!element || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(([entry]) => {
-      if (entry.contentRect.width > 0) setWidth(entry.contentRect.width);
-    });
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-  return [ref, width] as const;
-}
-
 function NodeLabel({
   node,
   columns,
@@ -132,7 +116,8 @@ function NodeLabel({
 // and what you pay).
 export default function CostSankey({ detail }: { detail: Detail }) {
   const groups = useAtomValue(costLineGroupsAtom);
-  const totalCosts = useAtomValue(totalCostsAtom);
+  const { totalCosts } = useAtomValue(scenarioCategoriesAtom).estimated;
+  const hatchId = `cost-sankey-hatch${useId().replace(/:/g, '')}`;
   const conversionRate = useAtomValue(applyConversionRateState);
   const [ref, width] = useWidth(detail === 'compact' ? 360 : 900);
   const [active, setActive] = useState<string | null>(null);
@@ -168,40 +153,69 @@ export default function CostSankey({ detail }: { detail: Detail }) {
           viewBox={`0 ${-inset} ${layout.width} ${height}`}
           onMouseLeave={() => setActive(null)}
         >
+          <defs>
+            {/* Stripes over the colour mark cost that depends on load. */}
+            <pattern
+              id={hatchId}
+              width="6"
+              height="6"
+              patternUnits="userSpaceOnUse"
+              patternTransform="rotate(45)"
+            >
+              <rect width="2" height="6" className="cost-sankey-hatch" />
+            </pattern>
+          </defs>
           <g className="cost-sankey-links">
             {layout.links.map(
-              ({ source, target, path, color, shade, value }) => {
+              ({ source, target, path, color, shade, value, variant }) => {
                 const key = `${source}->${target}`;
+                const lit = isLit(source, target, key);
                 return (
-                  <path
-                    key={key}
-                    d={path}
-                    style={fillStyle(color, shade)}
-                    className={
-                      isLit(source, target, key) ? undefined : 'cost-sankey-dim'
-                    }
-                    onMouseEnter={() => setActive(key)}
-                  >
-                    <title>{`${value.toFixed(2)} CU`}</title>
-                  </path>
+                  <g key={key} onMouseEnter={() => setActive(key)}>
+                    <path
+                      d={path}
+                      style={fillStyle(color, shade)}
+                      className={lit ? undefined : 'cost-sankey-dim'}
+                    >
+                      <title>{`${value.toFixed(2)} CU`}</title>
+                    </path>
+                    {variant === 'scale-out' && lit && (
+                      <path
+                        d={path}
+                        fill={`url(#${hatchId})`}
+                        className="cost-sankey-overlay"
+                      />
+                    )}
+                  </g>
                 );
               },
             )}
           </g>
           <g className="cost-sankey-nodes">
             {layout.nodes.map((node) => (
-              <rect
-                key={node.id}
-                x={node.x0}
-                y={node.y0}
-                width={node.x1 - node.x0}
-                height={node.y1 - node.y0}
-                rx={2}
-                style={fillStyle(node.color, node.shade)}
-                onMouseEnter={() => setActive(node.id)}
-              >
-                <title>{node.caption.join('\n')}</title>
-              </rect>
+              <g key={node.id} onMouseEnter={() => setActive(node.id)}>
+                <rect
+                  x={node.x0}
+                  y={node.y0}
+                  width={node.x1 - node.x0}
+                  height={node.y1 - node.y0}
+                  rx={2}
+                  style={fillStyle(node.color, node.shade)}
+                >
+                  <title>{node.caption.join('\n')}</title>
+                </rect>
+                {node.variant === 'scale-out' && (
+                  <rect
+                    x={node.x0}
+                    y={node.y0}
+                    width={node.x1 - node.x0}
+                    height={node.y1 - node.y0}
+                    rx={2}
+                    fill={`url(#${hatchId})`}
+                    className="cost-sankey-overlay"
+                  />
+                )}
+              </g>
             ))}
           </g>
           <g aria-hidden="true">

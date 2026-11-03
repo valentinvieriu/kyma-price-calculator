@@ -3,7 +3,8 @@ import { STORAGE_BLOCK_SIZE_GIB, toBillableBlocks } from './storageBlocks';
 
 export interface AdditionalNodeVolumeCostProps {
   additionalVolumeGib: number;
-  minAutoscaler: number;
+  // May be fractional: the average node count of an autoscaling pool.
+  nodes: number;
   timeConsumption: number;
 }
 
@@ -11,14 +12,14 @@ export interface AdditionalNodeVolumeCostProps {
 export default function calculateAdditionalNodeVolumeCosts(
   props: AdditionalNodeVolumeCostProps,
 ): number {
-  const { additionalVolumeGib, minAutoscaler, timeConsumption } = props;
+  const { additionalVolumeGib, nodes, timeConsumption } = props;
   const billedExtraPerNode =
     toBillableBlocks(additionalVolumeGib) * STORAGE_BLOCK_SIZE_GIB;
 
   return (
     billedExtraPerNode *
     config.nodeConfig.AdditionalNodeVolume.PricePerUnit *
-    minAutoscaler *
+    nodes *
     timeConsumption
   );
 }

@@ -12,6 +12,8 @@ export interface SankeyNodeInput {
   shade?: number;
   // Neighbours from different groups get extra space between them.
   group?: string;
+  // Drawn differently, e.g. the cost of nodes added by the autoscaler.
+  variant?: 'scale-out';
 }
 
 export interface SankeyLinkInput {
@@ -21,6 +23,8 @@ export interface SankeyLinkInput {
   // Defaults to the source node's colour and shade.
   color?: string;
   shade?: number;
+  // Defaults to the source node's variant.
+  variant?: SankeyNodeInput['variant'];
 }
 
 export interface SankeyGraph {
@@ -209,6 +213,7 @@ export function layoutSankey(
         ...end.link,
         color: end.link.color ?? end.source.color,
         shade: end.link.color ? end.link.shade : end.source.shade,
+        variant: end.link.variant ?? end.source.variant,
         width: end.width,
         path: ribbonPath(
           end.source.x1,

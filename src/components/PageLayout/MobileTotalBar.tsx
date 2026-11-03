@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { Button } from '@ui5/webcomponents-react';
-import { totalCostsAtom } from '../../state/costState';
+import {
+  canScaleAtom,
+  costRangeAtom,
+  totalCostsAtom,
+} from '../../state/costState';
 import config from '../../config.json';
 import { timeConsumptionState } from '../../state/additionalConfig/timeConsumptionState';
 import { applyConversionRateState } from '../../state/additionalConfig/applyConversionRateState';
@@ -14,6 +18,8 @@ export default function MobileTotalBar({ summaryId }: { summaryId: string }) {
   const totalCosts = useAtomValue(totalCostsAtom);
   const hours = useAtomValue(timeConsumptionState);
   const rate = useAtomValue(applyConversionRateState);
+  const canScale = useAtomValue(canScaleAtom);
+  const range = useAtomValue(costRangeAtom);
   const [summaryVisible, setSummaryVisible] = useState(false);
 
   useEffect(() => {
@@ -32,6 +38,11 @@ export default function MobileTotalBar({ summaryId }: { summaryId: string }) {
         <div className="mobile-total-bar-value">
           ≈ {formatCurrency(totalCosts.CC)} / month
         </div>
+        {canScale && (
+          <div className="mobile-total-bar-cu">
+            up to {formatCurrency(range.max.CC)} with autoscaling
+          </div>
+        )}
         <div className="mobile-total-bar-cu">
           {formatCU(totalCosts.CU)} · {hours} h · {formatCost(rate)}{' '}
           {config.CurrencyCode}/CU

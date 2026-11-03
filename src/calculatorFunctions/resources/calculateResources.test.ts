@@ -41,6 +41,17 @@ describe('resources', () => {
     });
   });
 
+  test('a pool at its maximum multiplies by the maximum node count', () => {
+    expect(poolResources({ ...small, maxAutoscaler: 5 }, 'max')).toMatchObject({
+      nodes: 5,
+      vcpus: 10,
+      diskGib: 600,
+    });
+    // Without a maximum the pool has a fixed size.
+    expect(poolResources(small, 'max').nodes).toBe(3);
+    expect(clusterResources([small, large], 'max').nodes).toBe(4);
+  });
+
   test('an empty cluster has no resources', () => {
     expect(clusterResources([]).nodes).toBe(0);
   });

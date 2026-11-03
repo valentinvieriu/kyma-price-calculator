@@ -1,6 +1,8 @@
 import { atom } from 'jotai';
 import {
   additionalCostsAtom,
+  CostScenario,
+  PoolCosts,
   poolCostsAtom,
   storageCostBreakdownAtom,
 } from '../../state/costState';
@@ -10,6 +12,7 @@ import { nfsGiBQuantityState } from '../../state/storage/nfsGiBQuantityState';
 import { snapshotGiBQuantityState } from '../../state/storage/snapshotGiBQuantityState';
 import { vmSizeLabel } from '../Configurator/PoolPanel';
 import { CATEGORY_COLORS } from '../common/categoryColors';
+import { formatNumber } from '../../utils/format';
 import { CostCategory } from './costCategories';
 
 export interface CostLine {
@@ -20,6 +23,8 @@ export interface CostLine {
   cu: number;
   // OKLCH lightness offset from the category colour, see spreadShade.
   shade: number;
+  // Cost of nodes the autoscaler adds on top of a pool's minimum.
+  scaleOut?: boolean;
 }
 
 export interface CostLineGroup {
@@ -36,13 +41,50 @@ export function spreadShade(index: number, count: number) {
   return count < 2 ? 0 : SHADE_RANGE * (index / (count - 1) - 0.5);
 }
 
+// Scale-out is drawn lighter than the minimum it adds to.
+export const SCALE_OUT_SHADE = 0.18;
+
+const poolName = (index: number) =>
+  index === 0 ? 'Base pool' : `Worker node pool ${index}`;
+
+// Each pool as its minimum and the nodes the autoscaler adds on average
+// under its load profile, so the chart shows what load adds to the bill.
+function poolLines(pools: PoolCosts[]): CostLine[] {
+  return pools.flatMap(({ machine, scenarios }, index) => {
+    const shade = spreadShade(index, pools.length);
+    const { min, estimated } = scenarios;
+    const extraNodes = estimated.nodes - min.nodes;
+    const lines: CostLine[] = [
+      {
+        text: poolName(index),
+        description: `${min.nodes} × ${vmSizeLabel(machine)}`,
+        cu: min.compute,
+        shade,
+      },
+    ];
+    if (extraNodes > 0) {
+      lines.push({
+        text: `${poolName(index)} scale-out`,
+        shortText: `${poolName(index)} +${formatNumber(extraNodes, 1)}`,
+        description: `+${formatNumber(extraNodes, 2)} nodes on average`,
+        cu: estimated.compute - min.compute,
+        shade: shade + SCALE_OUT_SHADE,
+        scaleOut: true,
+      });
+    }
+    return lines;
+  });
+}
+
 // Every billed item, grouped like the configuration sections, as shown in the
-// cost flow.
+// cost flow, in the estimate.
 export const costLineGroupsAtom = atom<CostLineGroup[]>((get) => {
   const storage = get(storageCostBreakdownAtom);
   const redis = get(redisState);
   const redisCosts = get(additionalCostsAtom);
   const pools = get(poolCostsAtom);
+  const nodeVolume = (at: CostScenario) =>
+    pools.reduce((sum, { scenarios }) => sum + scenarios[at].volume, 0);
   // Fixed per storage kind, so a kind keeps its shade when others are empty.
   const storageShade = (index: number) => spreadShade(index, 4);
 
@@ -51,12 +93,7 @@ export const costLineGroupsAtom = atom<CostLineGroup[]>((get) => {
       id: 'nodes-cost',
       header: 'Worker node pools',
       color: CATEGORY_COLORS.nodes,
-      lines: pools.map(({ machine, computeCosts }, index) => ({
-        text: index === 0 ? 'Base pool' : `Worker node pool ${index}`,
-        description: `${machine.minAutoscaler} × ${vmSizeLabel(machine)}`,
-        cu: computeCosts,
-        shade: spreadShade(index, pools.length),
-      })),
+      lines: poolLines(pools),
     },
     {
       id: 'storage-cost',
@@ -85,10 +122,18 @@ export const costLineGroupsAtom = atom<CostLineGroup[]>((get) => {
         {
           text: 'Extra node disk',
           description: 'From worker node pools',
-          cu: storage.nodeVolume,
+          cu: nodeVolume('min'),
           shade: storageShade(3),
         },
-      ].filter(({ cu }) => cu > 0),
+        {
+          text: 'Extra node disk scale-out',
+          shortText: 'Extra disk scale-out',
+          description: 'Disks of the added nodes',
+          cu: nodeVolume('estimated') - nodeVolume('min'),
+          shade: storageShade(3) + SCALE_OUT_SHADE,
+          scaleOut: true,
+        },
+      ].filter(({ cu }) => cu > 1e-9),
     },
     {
       id: 'additional-cost',

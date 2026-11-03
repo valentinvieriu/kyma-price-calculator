@@ -21,8 +21,12 @@ import { redisState } from './additionalConfig/redisState';
 export interface PoolSnapshot {
   machineType: string;
   vmSize: string;
+  // Autoscaler minimum and maximum.
   nodes: number;
+  maxNodes: number;
   extraVolumeGib: number;
+  // Share of the running hours the pool spends at its maximum.
+  loadPercent: number;
 }
 
 export interface ConfigSnapshot {
@@ -35,7 +39,8 @@ export interface ConfigSnapshot {
 }
 
 const machineTypes: MachineType[] = config.nodeConfig.MachineTypes;
-const { AutoScalerMin, AdditionalNodeVolume } = config.nodeConfig;
+const { AutoScalerMin, AutoScalerMax, AdditionalNodeVolume } =
+  config.nodeConfig;
 
 export const DEFAULT_SNAPSHOT: ConfigSnapshot = {
   pools: [
@@ -43,7 +48,9 @@ export const DEFAULT_SNAPSHOT: ConfigSnapshot = {
       machineType: machineTypes[0].value,
       vmSize: machineTypes[0].VMSizeOptions[0].value,
       nodes: AutoScalerMin.Default,
+      maxNodes: AutoScalerMax.Default,
       extraVolumeGib: AdditionalNodeVolume.Default,
+      loadPercent: config.TimeAtMax.Default,
     },
   ],
   storage: {
@@ -61,7 +68,9 @@ function toPoolSnapshot(machine: MachineSetup): PoolSnapshot {
     machineType: machine.machineType.value,
     vmSize: machine.VMSize.value,
     nodes: machine.minAutoscaler,
+    maxNodes: machine.maxAutoscaler,
     extraVolumeGib: machine.additionalVolumeGib,
+    loadPercent: machine.loadPercent,
   };
 }
 
@@ -76,7 +85,9 @@ function toMachineSetup(pool: PoolSnapshot, id: string): MachineSetup {
       machineType.VMSizeOptions.find(({ value }) => value === pool.vmSize) ??
       machineType.VMSizeOptions[0],
     minAutoscaler: pool.nodes,
+    maxAutoscaler: Math.max(pool.nodes, pool.maxNodes),
     additionalVolumeGib: pool.extraVolumeGib,
+    loadPercent: pool.loadPercent,
   };
 }
 
@@ -155,12 +166,30 @@ function sanitizeSnapshot(snapshot: ConfigSnapshot): ConfigSnapshot {
     ...AutoScalerMin,
     Min: isBase ? AutoScalerMin.Min : AutoScalerMin.MinWorkerNodes,
   });
-  const sanitizePool = (pool: PoolSnapshot, isBase: boolean) => ({
-    machineType: isBase ? machineTypes[0].value : String(pool.machineType),
-    vmSize: String(pool.vmSize),
-    nodes: clamp(pool.nodes, nodeBounds(isBase)),
-    extraVolumeGib: clamp(pool.extraVolumeGib, gibBounds(AdditionalNodeVolume)),
-  });
+  const sanitizePool = (pool: PoolSnapshot, isBase: boolean) => {
+    const nodes = clamp(pool.nodes, nodeBounds(isBase));
+    return {
+      machineType: isBase ? machineTypes[0].value : String(pool.machineType),
+      vmSize: String(pool.vmSize),
+      nodes,
+      // Links from before the maximum existed: Kyma's default for the base
+      // pool, a fixed size for worker node pools (they have no default).
+      maxNodes: clamp(pool.maxNodes, {
+        ...AutoScalerMax,
+        Default: isBase ? Math.max(nodes, AutoScalerMax.Default) : nodes,
+        Min: nodes,
+      }),
+      extraVolumeGib: clamp(
+        pool.extraVolumeGib,
+        gibBounds(AdditionalNodeVolume),
+      ),
+      // Links from before load profiles assumed no scaling; keep their total.
+      loadPercent: clamp(pool.loadPercent, {
+        ...config.TimeAtMax,
+        Default: 0,
+      }),
+    };
+  };
 
   return {
     ...snapshot,

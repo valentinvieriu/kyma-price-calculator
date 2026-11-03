@@ -19,8 +19,13 @@ export default function NodePoolsSection() {
   const [additional, setAdditional] = useAtom(additionalMachineSetupState);
   const [basePool, ...additionalPools] = useAtomValue(poolCostsAtom);
   const subtotal = useAtomValue(nodeConfigCostsAtom);
-  const totalNodes = [basePool, ...additionalPools].reduce(
+  const pools = [basePool, ...additionalPools];
+  const totalNodes = pools.reduce(
     (sum, { machine }) => sum + machine.minAutoscaler,
+    0,
+  );
+  const totalMaxNodes = pools.reduce(
+    (sum, { machine }) => sum + machine.maxAutoscaler,
     0,
   );
   const maxNodes = config.nodeConfig.AutoScalerMin.Max;
@@ -68,6 +73,13 @@ export default function NodePoolsSection() {
         <MessageStrip design="Critical" hideCloseButton>
           Your pools add up to {totalNodes} nodes, but a cluster runs at most{' '}
           {maxNodes} virtual machines across all pools.
+        </MessageStrip>
+      )}
+      {totalNodes <= maxNodes && totalMaxNodes > maxNodes && (
+        <MessageStrip design="Information" hideCloseButton>
+          Your pools may scale to {totalMaxNodes} nodes together, but a cluster
+          runs at most {maxNodes} virtual machines, so the cost at maximum
+          cannot be reached in full.
         </MessageStrip>
       )}
       <div className="node-pools-actions">

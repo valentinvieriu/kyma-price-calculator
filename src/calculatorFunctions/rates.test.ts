@@ -14,7 +14,7 @@ describe('rates', () => {
       calculateNodeConfigCosts({
         timeConsumption: 720,
         computeUnits: 3,
-        minAutoscaler: 3,
+        nodes: 3,
         machineTypeFactor: 1,
       }),
       10,

@@ -1,6 +1,7 @@
 import { utils, writeFile } from 'xlsx';
 import { CostReport } from '../../state/costState';
 import config from '../../config.json';
+import { loadProfileLabel } from '../../state/nodes/loadProfiles';
 
 export type ExportRow = (string | number)[];
 
@@ -23,15 +24,19 @@ export function buildExportRows(report: CostReport): ExportRow[] {
   ];
 
   // Node pools — one block per pool. Volume is billed under Storage, so pool
-  // cost is compute only.
-  report.pools.forEach(({ machine, computeCosts }, index) => {
+  // cost is compute only, estimated with the pool's load profile.
+  report.pools.forEach(({ machine, computeCosts, scenarios }, index) => {
     rows.push(
       [index === 0 ? 'Base Worker Node Pool' : `Worker Node Pool ${index}`],
       ['Machine Type', machine.machineType.value],
       ['VM Size', machine.VMSize.value],
       ['Autoscaler Min', machine.minAutoscaler],
+      ['Autoscaler Max', machine.maxAutoscaler],
+      ['Load Profile', loadProfileLabel(machine.loadPercent)],
+      ['Time at Maximum', `${machine.loadPercent} %`],
       ['Additional Volume', `${machine.additionalVolumeGib} GiB`],
       ['Pool Cost', cu(computeCosts)],
+      ['Pool Cost at Max', cu(scenarios.max.compute)],
       [''],
     );
   });
@@ -56,6 +61,18 @@ export function buildExportRows(report: CostReport): ExportRow[] {
     ['Additional Services', cu(report.additionalCosts)],
     ['Total (CU)', cu(report.totalCosts.CU)],
     [`Total (${config.CurrencyCode})`, currency(report.totalCosts.CC)],
+    [''],
+    ['Range with Autoscaling'],
+    ['Minimum Total (CU)', cu(report.costRange.min.CU)],
+    ['Maximum Total (CU)', cu(report.costRange.max.CU)],
+    [
+      `Minimum Total (${config.CurrencyCode})`,
+      currency(report.costRange.min.CC),
+    ],
+    [
+      `Maximum Total (${config.CurrencyCode})`,
+      currency(report.costRange.max.CC),
+    ],
   );
 
   return rows;

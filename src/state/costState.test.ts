@@ -3,10 +3,13 @@ import { beforeEach, describe, expect, test } from 'vitest';
 import config from '../config.json';
 import {
   additionalCostsAtom,
+  canScaleAtom,
+  costRangeAtom,
   costReportAtom,
   machineSetupsAtom,
   nodeConfigCostsAtom,
   poolCostsAtom,
+  scenarioCategoriesAtom,
   storageCostBreakdownAtom,
   storageCostsAtom,
   totalCostsAtom,
@@ -44,13 +47,24 @@ beforeEach(() => {
   store = createStore();
 });
 
+// Pricing tests below check fixed node counts; without load the base pool
+// stays at its minimum.
+function withoutLoad() {
+  store.set(baseMachineSetupState, {
+    ...store.get(baseMachineSetupState),
+    loadPercent: 0,
+  });
+}
+
 describe('default state', () => {
-  test('bills only the base pool: 3 nodes × 3 CU × 0.12 × 720 h', () => {
-    expect(store.get(nodeConfigCostsAtom)).toBeCloseTo(777.6, 10);
+  test('bills only the base pool: 3 nodes × 3 CU × 0.12 × 720 h, plus daily peaks', () => {
+    // 3 + 17 × 12 % = 5.04 nodes on average × 259.2
+    expect(store.get(nodeConfigCostsAtom)).toBeCloseTo(1306.368, 10);
     expect(store.get(storageCostsAtom)).toBe(0);
     expect(store.get(additionalCostsAtom)).toBe(0);
-    expect(store.get(totalCostsAtom).CU).toBeCloseTo(777.6, 10);
-    expect(store.get(totalCostsAtom).CC).toBeCloseTo(777.6, 10);
+    expect(store.get(totalCostsAtom).CU).toBeCloseTo(1306.368, 10);
+    expect(store.get(totalCostsAtom).CC).toBeCloseTo(1306.368, 10);
+    expect(store.get(costRangeAtom).min.CU).toBeCloseTo(777.6, 10);
   });
 
   test('base pool uses the first machine type and VM size', () => {
@@ -62,6 +76,8 @@ describe('default state', () => {
 });
 
 describe('node pools', () => {
+  beforeEach(withoutLoad);
+
   test('machineSetupsAtom lists the base pool first, then additional pools', () => {
     const extra = [pool(), pool()];
     store.set(additionalMachineSetupState, extra);
@@ -132,6 +148,8 @@ describe('storage and additional services', () => {
 });
 
 describe('global modifiers', () => {
+  beforeEach(withoutLoad);
+
   test('time consumption scales every cost linearly', () => {
     store.set(GiBQuantityState, 96);
     store.set(redisState, redisTier('Standard1'));
@@ -151,6 +169,8 @@ describe('global modifiers', () => {
 });
 
 describe('end-to-end scenario (mirrors tests/integration.test.js)', () => {
+  beforeEach(withoutLoad);
+
   test('matches the cost shown at the end of the Cypress journey', () => {
     store.set(baseMachineSetupState, {
       ...store.get(baseMachineSetupState),
@@ -206,6 +226,8 @@ describe('costReportAtom', () => {
 });
 
 describe('storageCostBreakdownAtom', () => {
+  beforeEach(withoutLoad);
+
   test('splits storage costs by source and sums to storageCostsAtom', () => {
     store.set(GiBQuantityState, 160);
     store.set(nfsGiBQuantityState, 64);
@@ -227,5 +249,97 @@ describe('storageCostBreakdownAtom', () => {
         breakdown.snapshot +
         breakdown.nodeVolume,
     ).toBeCloseTo(store.get(storageCostsAtom), 10);
+  });
+});
+
+describe('autoscaling scenarios', () => {
+  // One node of the default General Purpose size: 3 CU × 0.12 × 720 h.
+  const node = 259.2;
+
+  const setBaseLoad = (loadPercent: number) =>
+    store.set(baseMachineSetupState, {
+      ...store.get(baseMachineSetupState),
+      loadPercent,
+    });
+
+  test('the base pool scales to 20 nodes with daily peaks by default', () => {
+    const range = store.get(costRangeAtom);
+    expect(store.get(canScaleAtom)).toBe(true);
+    expect(store.get(baseMachineSetupState).loadPercent).toBe(12);
+    expect(range.min.CU).toBeCloseTo(3 * node, 10);
+    // 3 + 17 × 12 % = 5.04 nodes on average
+    expect(range.estimated.CU).toBeCloseTo(5.04 * node, 10);
+    expect(range.max.CU).toBeCloseTo(20 * node, 10);
+  });
+
+  test('pools at a fixed size cannot scale', () => {
+    store.set(baseMachineSetupState, {
+      ...store.get(baseMachineSetupState),
+      maxAutoscaler: 3,
+    });
+    const range = store.get(costRangeAtom);
+    expect(store.get(canScaleAtom)).toBe(false);
+    expect(range.max.CU).toBeCloseTo(range.min.CU, 10);
+  });
+
+  test('the load profile moves the bill linearly between min and max', () => {
+    setBaseLoad(30);
+    // 3 + 17 × 30 % = 8.1 nodes on average
+    expect(store.get(costRangeAtom).estimated.CU).toBeCloseTo(8.1 * node, 10);
+    expect(store.get(totalCostsAtom).CU).toBeCloseTo(8.1 * node, 10);
+    expect(store.get(poolCostsAtom)[0].scenarios.estimated.nodes).toBeCloseTo(
+      8.1,
+      10,
+    );
+  });
+
+  test('each pool scales with its own load profile', () => {
+    store.set(baseMachineSetupState, {
+      ...store.get(baseMachineSetupState),
+      maxAutoscaler: 5,
+      loadPercent: 0,
+    });
+    store.set(additionalMachineSetupState, [
+      { ...createMachineSetup('workers', 1, 3), loadPercent: 50 },
+    ]);
+    // Base stays at 3 nodes, workers average 1 + 2 × 50 % = 2 nodes.
+    expect(store.get(costRangeAtom).estimated.CU).toBeCloseTo(5 * node, 10);
+  });
+
+  test('extra node disk scales with the nodes, storage blocks do not', () => {
+    store.set(baseMachineSetupState, {
+      ...store.get(baseMachineSetupState),
+      minAutoscaler: 3,
+      maxAutoscaler: 5,
+      additionalVolumeGib: 32,
+    });
+    store.set(GiBQuantityState, 64);
+    const { min, max } = store.get(scenarioCategoriesAtom);
+    // 64 GiB is one block: 0.02 × 720 = 14.4; each node's 32 GiB is too
+    expect(min.storageCosts).toBeCloseTo(14.4 + 3 * 14.4, 10);
+    expect(max.storageCosts).toBeCloseTo(14.4 + 5 * 14.4, 10);
+    expect(max.nodeConfigCosts).toBeCloseTo(5 * node, 10);
+  });
+
+  test('a worker pool adds its own headroom', () => {
+    store.set(baseMachineSetupState, {
+      ...store.get(baseMachineSetupState),
+      maxAutoscaler: 3,
+    });
+    store.set(additionalMachineSetupState, [
+      { ...createMachineSetup('workers', 1, 4), loadPercent: 100 },
+    ]);
+    const range = store.get(costRangeAtom);
+    expect(store.get(canScaleAtom)).toBe(true);
+    expect(range.min.CU).toBeCloseTo(4 * node, 10);
+    expect(range.estimated.CU).toBeCloseTo(7 * node, 10);
+    expect(range.max.CU).toBeCloseTo(7 * node, 10);
+  });
+
+  test("the report carries the range and each pool's load", () => {
+    setBaseLoad(30);
+    const report = store.get(costReportAtom);
+    expect(report.pools[0].machine.loadPercent).toBe(30);
+    expect(report.costRange).toEqual(store.get(costRangeAtom));
   });
 });

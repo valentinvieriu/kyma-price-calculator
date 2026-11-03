@@ -5,13 +5,20 @@ import {
   NumericSideIndicator,
 } from '@ui5/webcomponents-react';
 import config from '../../config.json';
-import { totalCostsAtom } from '../../state/costState';
+import {
+  canScaleAtom,
+  costRangeAtom,
+  poolCostsAtom,
+  totalCostsAtom,
+} from '../../state/costState';
+import { poolsLoadLabel } from '../../state/nodes/loadProfiles';
 import { baselineState } from '../../state/baselineState';
-import { formatCost, formatCU } from '../../utils/format';
+import { formatCost, formatCU, formatCurrency } from '../../utils/format';
 import CostBar from './CostBar';
 import BaselineControls from './BaselineControls';
 import ExportButtons from './ExportButtons';
 import CalculationPanel from './CalculationPanel';
+import CostRange from './CostRange';
 import './Summary.css';
 
 function trend(current: number, baseline?: number) {
@@ -24,6 +31,12 @@ function trend(current: number, baseline?: number) {
 export default function Summary() {
   const totalCosts = useAtomValue(totalCostsAtom);
   const baseline = useAtomValue(baselineState);
+  const canScale = useAtomValue(canScaleAtom);
+  const range = useAtomValue(costRangeAtom);
+  const pools = useAtomValue(poolCostsAtom);
+  const subtitle = canScale
+    ? `Load: ${poolsLoadLabel(pools.map(({ machine }) => machine))} · up to ${formatCurrency(range.max.CC)} with autoscaling`
+    : 'Pools have a fixed size';
 
   return (
     <Card
@@ -34,7 +47,7 @@ export default function Summary() {
         <AnalyticalCardHeader
           id="total-in-currency"
           titleText="Estimated monthly cost"
-          subtitleText="At minimum node count; scaling up adds cost"
+          subtitleText={subtitle}
           value={formatCost(totalCosts.CC)}
           scale={config.CurrencyCode}
           trend={trend(totalCosts.CC, baseline?.totalCosts.CC)}
@@ -49,6 +62,7 @@ export default function Summary() {
       }
     >
       <div className="summary-body">
+        <CostRange />
         <CalculationPanel />
         <section aria-label="Cost by category" className="summary-composition">
           <CostBar />

@@ -44,6 +44,25 @@ describe('autoscaler min', () => {
   });
 });
 
+describe('autoscaler max', () => {
+  const max = config.nodeConfig.AutoScalerMax;
+  const min = config.nodeConfig.AutoScalerMin;
+
+  test('defaults are within their ranges and not below the minimum', () => {
+    expect(max.Default).toBeGreaterThanOrEqual(min.Default);
+    expect(max.Default).toBeLessThanOrEqual(max.Max);
+    expect(max.Min).toBe(min.Min);
+    expect(max.MinWorkerNodes).toBe(min.MinWorkerNodes);
+    expect(max.Max).toBe(min.Max);
+  });
+});
+
+test('time at maximum is a percentage', () => {
+  expect(config.TimeAtMax.Min).toBe(0);
+  expect(config.TimeAtMax.Max).toBe(100);
+  expect(config.TimeAtMax.Default).toBe(12);
+});
+
 test('storage UI steps match the billing block size', () => {
   // Billing uses Storage.Step as the block size for every disk type.
   const blockSize = config.Storage.Step;

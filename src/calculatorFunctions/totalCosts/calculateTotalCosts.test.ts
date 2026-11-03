@@ -115,12 +115,12 @@ describe('calculateTotalCosts — additivity of cost components', () => {
 
 describe('calculateTotalCosts — General Purpose full scenario', () => {
   test('total costs with General Purpose 16 CPU, standard+nfs+snapshot storage, Standard1 Redis', () => {
-    // nodeConfig: General Purpose, 16 CPU/64GiB (CU=16), minAutoscaler=3, time=450, factor=1
+    // nodeConfig: General Purpose, 16 CPU/64GiB (CU=16), nodes=3, time=450, factor=1
     // 3 * 16 * 0.12 * 1 * 450 = 2592
     const nodeConfigCosts = calculateNodeConfigCosts({
       timeConsumption: 450,
       computeUnits: 16,
-      minAutoscaler: 3,
+      nodes: 3,
       machineTypeFactor: 1,
     });
 
@@ -153,12 +153,12 @@ describe('calculateTotalCosts — General Purpose full scenario', () => {
 
 describe('calculateTotalCosts — Memory Intensive full scenario', () => {
   test('total costs with Memory Intensive 4 CPU, standard+nfs storage, Standard1 Redis', () => {
-    // nodeConfig: Memory Intensive, 4 CPU/32GiB (CU=4), minAutoscaler=3, time=720, factor=1.5
+    // nodeConfig: Memory Intensive, 4 CPU/32GiB (CU=4), nodes=3, time=720, factor=1.5
     // 3 * 4 * 0.12 * 1.5 * 720 = 1555.2
     const nodeConfigCosts = calculateNodeConfigCosts({
       timeConsumption: 720,
       computeUnits: 4,
-      minAutoscaler: 3,
+      nodes: 3,
       machineTypeFactor: 1.5,
     });
 
@@ -200,13 +200,13 @@ describe('calculateTotalCosts — Memory Intensive full scenario', () => {
     const gpNodeCosts = calculateNodeConfigCosts({
       timeConsumption: 720,
       computeUnits: 4,
-      minAutoscaler: 3,
+      nodes: 3,
       machineTypeFactor: 1,
     });
     const miNodeCosts = calculateNodeConfigCosts({
       timeConsumption: 720,
       computeUnits: 4,
-      minAutoscaler: 3,
+      nodes: 3,
       machineTypeFactor: 1.5,
     });
 
@@ -228,12 +228,12 @@ describe('calculateTotalCosts — Memory Intensive full scenario', () => {
   });
 
   test('total costs with Memory Intensive 16 CPU, all storage types, Premium1 Redis', () => {
-    // nodeConfig: Memory Intensive, 16 CPU/128GiB (CU=16), minAutoscaler=3, time=720, factor=1.5
+    // nodeConfig: Memory Intensive, 16 CPU/128GiB (CU=16), nodes=3, time=720, factor=1.5
     // 3 * 16 * 0.12 * 1.5 * 720 = 6220.8
     const nodeConfigCosts = calculateNodeConfigCosts({
       timeConsumption: 720,
       computeUnits: 16,
-      minAutoscaler: 3,
+      nodes: 3,
       machineTypeFactor: 1.5,
     });
 

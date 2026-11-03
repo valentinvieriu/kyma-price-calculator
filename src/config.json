@@ -15,6 +15,14 @@
       "Max": 300,
       "Step": 1
     },
+    "AutoScalerMax": {
+      "Default": 20,
+      "DefaultWorkerNodes": 1,
+      "Min": 3,
+      "MinWorkerNodes": 1,
+      "Max": 300,
+      "Step": 1
+    },
     "volumeFormula": {
       "volumeBase": 30,
       "volumeFactor": 8,
@@ -182,6 +190,12 @@
     "Max": 744,
     "Step": 1
   },
+  "TimeAtMax": {
+    "Default": 12,
+    "Min": 0,
+    "Max": 100,
+    "Step": 1
+  },
   "Storage": {
     "Default": 0,
     "Min": 0,
@@ -230,6 +244,7 @@
     "workload-assignment": "https://help.sap.com/docs/btp/sap-business-technology-platform/assigning-workloads-to-worker-node-pools",
     "machine-types": "https://help.sap.com/docs/btp/sap-business-technology-platform/provisioning-and-update-parameters-in-kyma-environment#machine-type",
     "autoscaler-min": "https://help.sap.com/docs/btp/sap-business-technology-platform/provisioning-and-update-parameters-in-kyma-environment#auto-scaler-min",
+    "autoscaler-max": "https://help.sap.com/docs/btp/sap-business-technology-platform/provisioning-and-update-parameters-in-kyma-environment#auto-scaler-max",
     "additional-volume": "https://help.sap.com/docs/btp/sap-business-technology-platform/provisioning-and-update-parameters-in-kyma-environment#additional-volume-size",
     "module-sizing": "https://help.sap.com/docs/btp/sap-business-technology-platform/kyma-modules-sizing",
     "persistent-volumes": "https://kubernetes.io/docs/concepts/storage/persistent-volumes/",

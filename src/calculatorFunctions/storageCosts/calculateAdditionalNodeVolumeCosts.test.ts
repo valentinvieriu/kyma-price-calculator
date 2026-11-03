@@ -4,17 +4,17 @@ import { expect, test } from 'vitest';
 test('returns zero when additional volume is zero', () => {
   const cost = calculateAdditionalNodeVolumeCosts({
     additionalVolumeGib: 0,
-    minAutoscaler: 3,
+    nodes: 3,
     timeConsumption: 720,
   });
 
   expect(cost).toBe(0);
 });
 
-test('returns zero when minAutoscaler is zero', () => {
+test('returns zero when nodes is zero', () => {
   const cost = calculateAdditionalNodeVolumeCosts({
     additionalVolumeGib: 50,
-    minAutoscaler: 0,
+    nodes: 0,
     timeConsumption: 720,
   });
 
@@ -24,7 +24,7 @@ test('returns zero when minAutoscaler is zero', () => {
 test('returns zero when timeConsumption is zero', () => {
   const cost = calculateAdditionalNodeVolumeCosts({
     additionalVolumeGib: 50,
-    minAutoscaler: 3,
+    nodes: 3,
     timeConsumption: 0,
   });
 
@@ -34,7 +34,7 @@ test('returns zero when timeConsumption is zero', () => {
 test('calculates correct cost for additional volume', () => {
   const cost = calculateAdditionalNodeVolumeCosts({
     additionalVolumeGib: 50,
-    minAutoscaler: 3,
+    nodes: 3,
     timeConsumption: 720,
   });
 
@@ -45,7 +45,7 @@ test('calculates correct cost for additional volume', () => {
 test('rounds additional up to the next 32 GiB block (1 GiB to 32 GiB)', () => {
   const cost = calculateAdditionalNodeVolumeCosts({
     additionalVolumeGib: 1,
-    minAutoscaler: 3,
+    nodes: 3,
     timeConsumption: 720,
   });
 
@@ -56,7 +56,7 @@ test('rounds additional up to the next 32 GiB block (1 GiB to 32 GiB)', () => {
 test('does not over-round when additional equals a block boundary', () => {
   const cost = calculateAdditionalNodeVolumeCosts({
     additionalVolumeGib: 32,
-    minAutoscaler: 3,
+    nodes: 3,
     timeConsumption: 720,
   });
 
@@ -67,7 +67,7 @@ test('does not over-round when additional equals a block boundary', () => {
 test('advances to the next block at 1 GiB over the boundary', () => {
   const cost = calculateAdditionalNodeVolumeCosts({
     additionalVolumeGib: 33,
-    minAutoscaler: 3,
+    nodes: 3,
     timeConsumption: 720,
   });
 
@@ -78,7 +78,7 @@ test('advances to the next block at 1 GiB over the boundary', () => {
 test('bills additional volume per node (input GiB x autoscaler min)', () => {
   const cost = calculateAdditionalNodeVolumeCosts({
     additionalVolumeGib: 32,
-    minAutoscaler: 3,
+    nodes: 3,
     timeConsumption: 720,
   });
 
@@ -86,16 +86,16 @@ test('bills additional volume per node (input GiB x autoscaler min)', () => {
   expect(cost).toBeCloseTo(32 * 0.000625 * 3 * 720, 5);
 });
 
-test('scales linearly with minAutoscaler', () => {
+test('scales linearly with nodes', () => {
   const baseCost = calculateAdditionalNodeVolumeCosts({
     additionalVolumeGib: 50,
-    minAutoscaler: 3,
+    nodes: 3,
     timeConsumption: 720,
   });
 
   const doubledCost = calculateAdditionalNodeVolumeCosts({
     additionalVolumeGib: 50,
-    minAutoscaler: 6,
+    nodes: 6,
     timeConsumption: 720,
   });
 

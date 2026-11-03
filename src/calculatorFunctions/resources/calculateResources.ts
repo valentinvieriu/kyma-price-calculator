@@ -5,6 +5,8 @@ import calculateDefaultVolumeSize from '../defaultVolumeSize/calculateDefaultVol
 
 export interface PoolInput {
   minAutoscaler: number;
+  // Defaults to the minimum: a pool of fixed size.
+  maxAutoscaler?: number;
   VMSize: { vcpus: number; memoryGib: number };
   additionalVolumeGib: number;
 }
@@ -49,20 +51,36 @@ const scale = (resources: Resources, factor: number): Resources => ({
   diskGib: resources.diskGib * factor,
 });
 
-export function poolResources(pool: PoolInput): Resources {
-  return scale(nodeResources(pool), pool.minAutoscaler);
+// The autoscaler keeps a pool between its minimum and maximum node count.
+export type PoolSize = 'min' | 'max';
+
+export const poolNodes = (pool: PoolInput, size: PoolSize = 'min') =>
+  size === 'max'
+    ? Math.max(pool.minAutoscaler, pool.maxAutoscaler ?? pool.minAutoscaler)
+    : pool.minAutoscaler;
+
+export function poolResources(
+  pool: PoolInput,
+  size: PoolSize = 'min',
+): Resources {
+  return scale(nodeResources(pool), poolNodes(pool, size));
 }
 
-export function clusterResources(pools: PoolInput[]): Resources {
-  return pools.map(poolResources).reduce(
-    (total, pool) => ({
-      nodes: total.nodes + pool.nodes,
-      vcpus: total.vcpus + pool.vcpus,
-      memoryGib: total.memoryGib + pool.memoryGib,
-      includedDiskGib: total.includedDiskGib + pool.includedDiskGib,
-      extraDiskGib: total.extraDiskGib + pool.extraDiskGib,
-      diskGib: total.diskGib + pool.diskGib,
-    }),
-    NO_RESOURCES,
-  );
+export function clusterResources(
+  pools: PoolInput[],
+  size: PoolSize = 'min',
+): Resources {
+  return pools
+    .map((pool) => poolResources(pool, size))
+    .reduce(
+      (total, pool) => ({
+        nodes: total.nodes + pool.nodes,
+        vcpus: total.vcpus + pool.vcpus,
+        memoryGib: total.memoryGib + pool.memoryGib,
+        includedDiskGib: total.includedDiskGib + pool.includedDiskGib,
+        extraDiskGib: total.extraDiskGib + pool.extraDiskGib,
+        diskGib: total.diskGib + pool.diskGib,
+      }),
+      NO_RESOURCES,
+    );
 }

@@ -4,6 +4,12 @@ context('Configure a cluster', () => {
   it('updates the estimate as each section is configured', () => {
     cy.visit('/');
 
+    // The steps below price fixed node counts: keep the base pool at its
+    // minimum instead of the default daily peaks.
+    cy.selectOption('base-pool-load', 'Custom');
+    cy.typeIntoStepInput('base-pool-load-percent', 0);
+    cy.get('#total-capacity-units').contains('777,60');
+
     // Base worker node pool
     cy.selectOption('base-pool-vm-size', '4 vCPU');
     cy.costShouldBe(Step.BASE_VM_SIZE_INCREASE);
@@ -54,8 +60,9 @@ context('Configure a cluster', () => {
       'exist',
     );
 
+    // Back to the default: daily peaks on the base pool.
     cy.get('ui5-button').contains('Reset').click();
-    cy.get('#total-capacity-units').contains('777,60');
+    cy.get('#total-capacity-units').contains('1.306,37');
   });
 });
 
@@ -78,7 +85,7 @@ context('Billing details users can verify', () => {
     cy.visit('/');
 
     cy.get('ui5-button').contains('Pin as baseline').click();
-    cy.get('#rate-term').click();
+    cy.get('#summary-rate').click();
     cy.typeIntoStepInput('conversion-rate-input', 0.8);
     cy.get('ui5-step-input#conversion-rate-input').should(
       'have.prop',
@@ -86,9 +93,9 @@ context('Billing details users can verify', () => {
       'None',
     );
 
-    // 777.60 CU × 0.80 = 622.08 €, CU unchanged
-    cy.get('#total-in-currency').contains('622,08');
-    cy.get('#baseline-delta').contains('155,52 €');
+    // 1306.37 CU × 0.80 = 1045.09 €, CU unchanged
+    cy.get('#total-in-currency').contains('1.045,09');
+    cy.get('#baseline-delta').contains('261,27 €');
     cy.get('#cost-summary').contains('Changed: conversion rate.');
   });
 });
@@ -126,8 +133,8 @@ context('Running hours', () => {
     cy.get('#summary-hours').click();
     cy.get('.hours-presets').contains('1 week').click();
 
-    // 3 nodes × 0.36 CU/h × 168 h
-    cy.get('#total-capacity-units').contains('181,44');
+    // 5.04 nodes on average (daily peaks) × 0.36 CU/h × 168 h
+    cy.get('#total-capacity-units').contains('304,82');
     cy.get('#summary-hours').contains('168 h');
     cy.stepInputText('hours-input').should('have.value', '168');
   });
@@ -147,5 +154,23 @@ context('Resources', () => {
     cy.get('ui5-button').contains('Add worker node pool').click();
     cy.get('#cluster-resources').contains('4');
     cy.get('#cluster-resources').contains('440 GiB');
+  });
+});
+
+context('Autoscaling', () => {
+  it("estimates the bill from each pool's load profile", () => {
+    cy.visit('/');
+
+    // Default: 3 nodes, up to 20, daily peaks (12 % at maximum):
+    // (3 + 17 × 12 %) × 0.36 CU/h × 720 h
+    cy.get('#total-capacity-units').contains('1.306,37');
+    cy.get('#cost-range-min').contains('777,60');
+    cy.get('#cost-range-max').contains('5.184,00');
+
+    // 3 + 17 × 30 % = 8.1 nodes on average
+    cy.selectOption('base-pool-load', 'Business hours');
+    cy.get('#total-capacity-units').contains('2.099,52');
+    cy.get('#cost-range-estimated').contains('2.099,52');
+    cy.get('#cost-summary').contains('Load: Business hours');
   });
 });

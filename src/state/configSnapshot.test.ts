@@ -23,13 +23,17 @@ const custom: ConfigSnapshot = {
       machineType: generalPurpose.value,
       vmSize: generalPurpose.VMSizeOptions[1].value,
       nodes: 10,
+      maxNodes: 10,
       extraVolumeGib: 64,
+      loadPercent: 0,
     },
     {
       machineType: computeOptimized.value,
       vmSize: computeOptimized.VMSizeOptions[2].value,
       nodes: 5,
+      maxNodes: 5,
       extraVolumeGib: 0,
+      loadPercent: 12,
     },
   ],
   storage: { standardGib: 160, nfsGib: 160, snapshotGib: 0 },
@@ -95,6 +99,43 @@ describe('configSnapshotAtom', () => {
     });
     expect(snapshot.redisTier).toBe('None');
     expect(snapshot.hoursPerMonth).toBe(config.TimeConsumption.Max);
+  });
+
+  test('keeps the maximum between the minimum and the upper limit', () => {
+    store.set(configSnapshotAtom, {
+      ...custom,
+      pools: [
+        { ...custom.pools[0], nodes: 10, maxNodes: 4, loadPercent: -5 },
+        { ...custom.pools[1], nodes: 2, maxNodes: 9999, loadPercent: 250 },
+      ],
+    });
+
+    const [base, extra] = store.get(configSnapshotAtom).pools;
+    expect(base.maxNodes).toBe(10);
+    expect(extra.maxNodes).toBe(config.nodeConfig.AutoScalerMax.Max);
+    expect(base.loadPercent).toBe(0);
+    expect(extra.loadPercent).toBe(100);
+  });
+
+  test('gives links without a maximum the Kyma defaults', () => {
+    const legacy = {
+      ...custom,
+      pools: custom.pools.map(
+        ({ maxNodes: _, loadPercent: __, ...pool }) => pool,
+      ),
+    } as unknown as ConfigSnapshot;
+    store.set(configSnapshotAtom, legacy);
+
+    const snapshot = store.get(configSnapshotAtom);
+    expect(snapshot.pools.map(({ maxNodes }) => maxNodes)).toEqual([
+      config.nodeConfig.AutoScalerMax.Default,
+      5,
+    ]);
+    // No load, so old links keep their total at the minimum.
+    expect(snapshot.pools.map(({ loadPercent }) => loadPercent)).toEqual([
+      0, 0,
+    ]);
+    expect(store.get(totalCostsAtom).CU).toBeCloseTo(8335.35, 10);
   });
 });
 

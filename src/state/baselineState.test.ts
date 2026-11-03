@@ -27,4 +27,20 @@ describe('describeChanges', () => {
       }),
     ).toEqual(['running hours']);
   });
+
+  test('a different load profile is an assumption, a different maximum is not', () => {
+    const [base] = DEFAULT_SNAPSHOT.pools;
+    expect(
+      describeChanges(DEFAULT_SNAPSHOT, {
+        ...DEFAULT_SNAPSHOT,
+        pools: [{ ...base, loadPercent: 30 }],
+      }),
+    ).toEqual(['load profile']);
+    expect(
+      describeChanges(DEFAULT_SNAPSHOT, {
+        ...DEFAULT_SNAPSHOT,
+        pools: [{ ...base, maxNodes: base.maxNodes + 1, loadPercent: 30 }],
+      }),
+    ).toEqual(['configuration', 'load profile']);
+  });
 });

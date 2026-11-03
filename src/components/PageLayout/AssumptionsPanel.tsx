@@ -66,6 +66,25 @@ const groups: Group[] = [
     ],
   },
   {
+    icon: 'line-chart',
+    title: 'Autoscaling',
+    items: [
+      <>
+        Each pool runs between its minimum and maximum nodes. You always pay for
+        the minimum; every node the autoscaler adds is billed for the hours it
+        runs, including its extra disk.
+      </>,
+      <>
+        The estimate assumes each pool spends a share of the running hours at
+        its maximum, set as the pool&apos;s estimated load. The default is daily
+        peaks: about 4 hours a day at maximum on weekdays (12 %).
+      </>,
+      <>
+        The maximum shows the bill if every pool runs at its maximum all month.
+      </>,
+    ],
+  },
+  {
     icon: 'database',
     title: 'Storage',
     items: [

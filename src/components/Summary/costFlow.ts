@@ -36,20 +36,23 @@ export function buildCostFlow(
       caption: full ? [header, formatCU(categoryCU)] : [header],
       color,
     });
-    lines.forEach(({ text, shortText, description, cu, shade }, index) => {
-      const lineId = `${id}/${index}`;
-      nodes.push({
-        id: lineId,
-        column: 0,
-        caption: full
-          ? [text, `${description} · ${formatCU(cu)}`]
-          : [shortText ?? text, formatCU(cu)],
-        color,
-        shade,
-        group: id,
-      });
-      links.push({ source: lineId, target: id, value: cu });
-    });
+    lines.forEach(
+      ({ text, shortText, description, cu, shade, scaleOut }, index) => {
+        const lineId = `${id}/${index}`;
+        nodes.push({
+          id: lineId,
+          column: 0,
+          caption: full
+            ? [text, `${description} · ${formatCU(cu)}`]
+            : [shortText ?? text, formatCU(cu)],
+          color,
+          shade,
+          group: id,
+          variant: scaleOut ? 'scale-out' : undefined,
+        });
+        links.push({ source: lineId, target: id, value: cu });
+      },
+    );
     if (full) links.push({ source: id, target: 'total', value: categoryCU });
   });
 

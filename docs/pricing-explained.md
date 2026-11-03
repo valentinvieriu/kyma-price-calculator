@@ -100,7 +100,9 @@ Today all three types use the same points-per-vCPU, so the type changes _what yo
 
 **Good to know**
 
-- You pay for the **minimum** number of machines you set — the calculator does not guess about extra machines the autoscaler might add on busy days.
+- Each pool has a **minimum** and a **maximum** number of machines. You always pay for the minimum; every machine the autoscaler adds on busy days is billed for the hours it runs.
+- Each pool that can scale also has an **estimated load**: how much of the month it spends at its maximum. Pick a profile — _Daily peaks_ (12 %, the default), _Business hours_ (30 %) or _Heavy use_ (60 %) — or enter your own share.
+- The calculator shows three numbers: **minimum** (pools never grow), **estimated** (each pool at its estimated load — the headline total and the charts, with the scale-out striped) and **maximum** (every pool at its maximum all month).
 - Every machine **already includes a local disk** (80 GiB for small machines, up to 250 GiB for the largest). It's part of the machine price — **free**, no line on your bill.
 
 ---

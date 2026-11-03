@@ -11,6 +11,7 @@ import exportToFile, {
 import { costReportAtom } from '../../state/costState';
 import {
   additionalMachineSetupState,
+  baseMachineSetupState,
   createMachineSetup,
 } from '../../state/nodes/machineSetupState';
 import { GiBQuantityState } from '../../state/storage/GiBQuantityState';
@@ -28,6 +29,11 @@ vi.mock('xlsx', () => ({
 
 function reportFromStore() {
   const store = createStore();
+  // Without load, the estimate is the minimum.
+  store.set(baseMachineSetupState, {
+    ...store.get(baseMachineSetupState),
+    loadPercent: 0,
+  });
   store.set(additionalMachineSetupState, [createMachineSetup('pool-1', 2)]);
   store.set(GiBQuantityState, 64);
   store.set(redisState, { tier: 'Standard1', storageGib: 182 });
@@ -80,6 +86,33 @@ describe('buildExportRows', () => {
     expect(valueOf(rows, 'Additional Services')).toBe('81.90 CU');
     expect(valueOf(rows, 'Total (CU)')).toBe('1392.30 CU');
     expect(valueOf(rows, 'Total (€)')).toBe('696.15 €');
+  });
+
+  test('shows how far autoscaling can take the bill', () => {
+    // The base pool scales to Kyma's default of 20 nodes, pool 1 is fixed.
+    const maxima = rows.filter((row) => row[0] === 'Autoscaler Max');
+    expect(maxima).toEqual([
+      ['Autoscaler Max', 20],
+      ['Autoscaler Max', 2],
+    ]);
+    // 20 × 3 CU × 0.12 × 720
+    expect(rows.find((row) => row[0] === 'Pool Cost at Max')).toEqual([
+      'Pool Cost at Max',
+      '5184.00 CU',
+    ]);
+    const loads = rows.filter(([label]) =>
+      ['Load Profile', 'Time at Maximum'].includes(String(label)),
+    );
+    expect(loads).toEqual([
+      ['Load Profile', '0 % at maximum'],
+      ['Time at Maximum', '0 %'],
+      ['Load Profile', 'Daily peaks'],
+      ['Time at Maximum', '12 %'],
+    ]);
+    expect(valueOf(rows, 'Minimum Total (CU)')).toBe('1392.30 CU');
+    // + 17 nodes × 0.36 CU/h × 720 h = 4406.4
+    expect(valueOf(rows, 'Maximum Total (CU)')).toBe('5798.70 CU');
+    expect(valueOf(rows, 'Maximum Total (€)')).toBe('2899.35 €');
   });
 });
 

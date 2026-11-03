@@ -24,8 +24,13 @@ function Stat({ value, label, detail, critical }: StatProps) {
 
 // Totals across all worker node pools: what the whole cluster provides.
 export default function ClusterResources() {
-  const resources = clusterResources(useAtomValue(machineSetupsAtom));
+  const machines = useAtomValue(machineSetupsAtom);
+  const resources = clusterResources(machines);
+  const atMax = clusterResources(machines, 'max');
+  const canScale = atMax.nodes > resources.nodes;
   const maxNodes = config.nodeConfig.AutoScalerMin.Max;
+  const upTo = (value: number, unit = '') =>
+    canScale ? `up to ${formatNumber(value)}${unit} at maximum` : undefined;
 
   return (
     <section id="cluster-resources" className="cluster-resources">
@@ -33,19 +38,32 @@ export default function ClusterResources() {
       <dl>
         <Stat
           label="Nodes"
-          value={formatNumber(resources.nodes)}
+          value={
+            canScale
+              ? `${formatNumber(resources.nodes)}–${formatNumber(atMax.nodes)}`
+              : formatNumber(resources.nodes)
+          }
           detail={`of ${maxNodes} max`}
           critical={resources.nodes > maxNodes}
         />
-        <Stat label="vCPU" value={formatNumber(resources.vcpus)} />
-        <Stat label="RAM" value={`${formatNumber(resources.memoryGib)} GiB`} />
+        <Stat
+          label="vCPU"
+          value={formatNumber(resources.vcpus)}
+          detail={upTo(atMax.vcpus)}
+        />
+        <Stat
+          label="RAM"
+          value={`${formatNumber(resources.memoryGib)} GiB`}
+          detail={upTo(atMax.memoryGib, ' GiB')}
+        />
         <Stat
           label="Disk"
           value={`${formatNumber(resources.diskGib)} GiB`}
           detail={
-            resources.extraDiskGib > 0
+            upTo(atMax.diskGib, ' GiB') ??
+            (resources.extraDiskGib > 0
               ? `incl. ${formatNumber(resources.extraDiskGib)} GiB extra`
-              : 'included with the nodes'
+              : 'included with the nodes')
           }
         />
       </dl>

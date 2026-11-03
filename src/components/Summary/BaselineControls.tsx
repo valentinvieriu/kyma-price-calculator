@@ -2,7 +2,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Button, ObjectStatus, Text } from '@ui5/webcomponents-react';
 import { baselineState, describeChanges } from '../../state/baselineState';
 import { configSnapshotAtom } from '../../state/configSnapshot';
-import { totalCostsAtom } from '../../state/costState';
+import { costRangeAtom, totalCostsAtom } from '../../state/costState';
 import { formatCU, formatCurrency, formatPercent } from '../../utils/format';
 
 const signed = (delta: number, format: (n: number) => string) =>
@@ -13,6 +13,7 @@ export default function BaselineControls() {
   const [baseline, setBaseline] = useAtom(baselineState);
   const snapshot = useAtomValue(configSnapshotAtom);
   const totalCosts = useAtomValue(totalCostsAtom);
+  const costRange = useAtomValue(costRangeAtom);
   const restore = useSetAtom(configSnapshotAtom);
 
   if (!baseline) {
@@ -24,7 +25,7 @@ export default function BaselineControls() {
         <Button
           icon="pushpin-off"
           design="Transparent"
-          onClick={() => setBaseline({ snapshot, totalCosts })}
+          onClick={() => setBaseline({ snapshot, totalCosts, costRange })}
         >
           Pin as baseline
         </Button>
@@ -38,6 +39,12 @@ export default function BaselineControls() {
   const relative =
     baseline.totalCosts.CC > 0 ? deltaCC / baseline.totalCosts.CC : 0;
   const changes = describeChanges(baseline.snapshot, snapshot);
+  // The ceiling can move even when the expected total does not, for example
+  // after raising a pool's maximum.
+  const baselineMax = baseline.costRange.max.CC;
+  const showMax =
+    costRange.max.CC !== totalCosts.CC ||
+    baselineMax !== baseline.totalCosts.CC;
 
   return (
     <div className="summary-baseline">
@@ -57,6 +64,12 @@ export default function BaselineControls() {
         </ObjectStatus>
         <Text>{signed(deltaCU, formatCU)}</Text>
       </div>
+      {showMax && (
+        <Text id="baseline-max-delta" className="summary-hint">
+          At maximum: {signed(costRange.max.CC - baselineMax, formatCurrency)}{' '}
+          (baseline {formatCurrency(baselineMax)})
+        </Text>
+      )}
       <Text className="summary-hint">
         {changes.length > 0
           ? `Changed: ${changes.join(', ')}.`

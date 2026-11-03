@@ -3,17 +3,17 @@ import { expect, test, describe } from 'vitest';
 
 // Config values (from config.json)
 // nodeConfig.PricePerUnit (PPU) = 0.12
-// Formula: minAutoscaler * computeUnits * PPU * machineTypeFactor * timeConsumption
+// Formula: nodes * computeUnits * PPU * machineTypeFactor * timeConsumption
 //
 // Every machine type sets multiple: 1 in config, so machineTypeFactor is 1.0 in
 // production; the factor remains a generic multiplier the formula supports.
 
 describe('calculateNodeConfigCosts — zero / boundary cases', () => {
-  test('returns zero when minAutoscaler is zero', () => {
+  test('returns zero when nodes is zero', () => {
     const cost = calculateNodeConfigCosts({
       timeConsumption: 720,
       computeUnits: 4,
-      minAutoscaler: 0,
+      nodes: 0,
       machineTypeFactor: 1,
     });
 
@@ -24,7 +24,7 @@ describe('calculateNodeConfigCosts — zero / boundary cases', () => {
     const cost = calculateNodeConfigCosts({
       timeConsumption: 0,
       computeUnits: 4,
-      minAutoscaler: 6,
+      nodes: 6,
       machineTypeFactor: 1,
     });
 
@@ -36,97 +36,97 @@ describe('calculateNodeConfigCosts — General Purpose (factor = 1.0)', () => {
   // VM sizes: 2CPU/8GiB→CU3, 4CPU/16GiB→CU4, 8CPU/32GiB→CU8,
   //           16CPU/64GiB→CU16, 32CPU/128GiB→CU32, 48CPU/192GiB→CU48, 64CPU/256GiB→CU64
 
-  test('2 CPU - 8 GiB RAM (computeUnits=3), minAutoscaler=3, time=720', () => {
+  test('2 CPU - 8 GiB RAM (computeUnits=3), nodes=3, time=720', () => {
     // 3 * 3 * 0.12 * 1 * 720 = 777.6
     expect(
       calculateNodeConfigCosts({
         timeConsumption: 720,
         computeUnits: 3,
-        minAutoscaler: 3,
+        nodes: 3,
         machineTypeFactor: 1,
       }),
     ).toBe(777.6);
   });
 
-  test('4 CPU - 16 GiB RAM (computeUnits=4), minAutoscaler=3, time=720', () => {
+  test('4 CPU - 16 GiB RAM (computeUnits=4), nodes=3, time=720', () => {
     // 3 * 4 * 0.12 * 1 * 720 = 1036.8
     expect(
       calculateNodeConfigCosts({
         timeConsumption: 720,
         computeUnits: 4,
-        minAutoscaler: 3,
+        nodes: 3,
         machineTypeFactor: 1,
       }),
     ).toBe(1036.8);
   });
 
-  test('8 CPU - 32 GiB RAM (computeUnits=8), minAutoscaler=3, time=720', () => {
+  test('8 CPU - 32 GiB RAM (computeUnits=8), nodes=3, time=720', () => {
     // 3 * 8 * 0.12 * 1 * 720 = 2073.6
     expect(
       calculateNodeConfigCosts({
         timeConsumption: 720,
         computeUnits: 8,
-        minAutoscaler: 3,
+        nodes: 3,
         machineTypeFactor: 1,
       }),
     ).toBe(2073.6);
   });
 
-  test('16 CPU - 64 GiB RAM (computeUnits=16), minAutoscaler=3, time=720', () => {
+  test('16 CPU - 64 GiB RAM (computeUnits=16), nodes=3, time=720', () => {
     // 3 * 16 * 0.12 * 1 * 720 = 4147.2
     expect(
       calculateNodeConfigCosts({
         timeConsumption: 720,
         computeUnits: 16,
-        minAutoscaler: 3,
+        nodes: 3,
         machineTypeFactor: 1,
       }),
     ).toBe(4147.2);
   });
 
-  test('32 CPU - 128 GiB RAM (computeUnits=32), minAutoscaler=3, time=720', () => {
+  test('32 CPU - 128 GiB RAM (computeUnits=32), nodes=3, time=720', () => {
     // 3 * 32 * 0.12 * 1 * 720 = 8294.4
     expect(
       calculateNodeConfigCosts({
         timeConsumption: 720,
         computeUnits: 32,
-        minAutoscaler: 3,
+        nodes: 3,
         machineTypeFactor: 1,
       }),
     ).toBe(8294.4);
   });
 
-  test('48 CPU - 192 GiB RAM (computeUnits=48), minAutoscaler=3, time=720', () => {
+  test('48 CPU - 192 GiB RAM (computeUnits=48), nodes=3, time=720', () => {
     // 3 * 48 * 0.12 * 1 * 720 = 12441.6
     expect(
       calculateNodeConfigCosts({
         timeConsumption: 720,
         computeUnits: 48,
-        minAutoscaler: 3,
+        nodes: 3,
         machineTypeFactor: 1,
       }),
     ).toBe(12441.6);
   });
 
-  test('64 CPU - 256 GiB RAM (computeUnits=64), minAutoscaler=3, time=720', () => {
+  test('64 CPU - 256 GiB RAM (computeUnits=64), nodes=3, time=720', () => {
     // 3 * 64 * 0.12 * 1 * 720 = 16588.8
     expect(
       calculateNodeConfigCosts({
         timeConsumption: 720,
         computeUnits: 64,
-        minAutoscaler: 3,
+        nodes: 3,
         machineTypeFactor: 1,
       }),
     ).toBe(16588.8);
   });
 
-  test('costs of minAutoscaler=6 with computeUnits=4, time=720', () => {
+  test('costs of nodes=6 with computeUnits=4, time=720', () => {
     // 6 * 4 * 0.12 * 1 * 720 = 2073.6
     expect(
       calculateNodeConfigCosts({
         timeConsumption: 720,
         computeUnits: 4,
-        minAutoscaler: 6,
+        nodes: 6,
         machineTypeFactor: 1,
       }),
     ).toBe(2073.6);
@@ -140,7 +140,7 @@ describe('calculateNodeConfigCosts — machineTypeFactor', () => {
       calculateNodeConfigCosts({
         timeConsumption: 720,
         computeUnits: 4,
-        minAutoscaler: 3,
+        nodes: 3,
         machineTypeFactor: 1,
       }),
     ).toBe(1036.8);
@@ -150,30 +150,30 @@ describe('calculateNodeConfigCosts — machineTypeFactor', () => {
     const base = calculateNodeConfigCosts({
       timeConsumption: 720,
       computeUnits: 4,
-      minAutoscaler: 3,
+      nodes: 3,
       machineTypeFactor: 1,
     });
     const doubled = calculateNodeConfigCosts({
       timeConsumption: 720,
       computeUnits: 4,
-      minAutoscaler: 3,
+      nodes: 3,
       machineTypeFactor: 2,
     });
 
     expect(doubled).toBe(base * 2);
   });
 
-  test('cost scales linearly with minAutoscaler', () => {
+  test('cost scales linearly with nodes', () => {
     const base = calculateNodeConfigCosts({
       timeConsumption: 720,
       computeUnits: 8,
-      minAutoscaler: 3,
+      nodes: 3,
       machineTypeFactor: 1,
     });
     const doubled = calculateNodeConfigCosts({
       timeConsumption: 720,
       computeUnits: 8,
-      minAutoscaler: 6,
+      nodes: 6,
       machineTypeFactor: 1,
     });
 
