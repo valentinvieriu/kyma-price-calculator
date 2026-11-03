@@ -1,5 +1,5 @@
 import type { TotalCosts } from '../../calculatorFunctions/totalCosts/calculateTotalCosts';
-import { formatCU, formatCurrency } from '../../utils/format';
+import { formatCU, formatCurrency, formatPercent } from '../../utils/format';
 import type { CostLineGroup } from './costLines';
 import type {
   SankeyGraph,
@@ -17,7 +17,8 @@ export interface CostFlowInput {
   conversionRate: number;
 }
 
-// Compact: each charge flowing into its category, sized for the summary card.
+// Compact: each charge flowing into its category, sized for the summary card;
+// the category captions carry their value and share of the total.
 // Full: continues into the CU total and splits it into what you pay and the
 // discount from a price per CU below 1, like docs/pricing-explained.md.
 export function buildCostFlow(
@@ -27,13 +28,19 @@ export function buildCostFlow(
   const full = detail === 'full';
   const nodes: SankeyNodeInput[] = [];
   const links: SankeyLinkInput[] = [];
+  const sumCU = (lines: CostLineGroup['lines']) =>
+    lines.reduce((total, { cu }) => total + cu, 0);
+  const totalCU = groups.reduce((total, { lines }) => total + sumCU(lines), 0);
 
   groups.forEach(({ id, header, color, lines }) => {
-    const categoryCU = lines.reduce((total, { cu }) => total + cu, 0);
+    const categoryCU = sumCU(lines);
+    const share = totalCU > 0 ? categoryCU / totalCU : 0;
     nodes.push({
       id,
       column: 1,
-      caption: full ? [header, formatCU(categoryCU)] : [header],
+      caption: full
+        ? [header, formatCU(categoryCU)]
+        : [header, `${formatCU(categoryCU)} · ${formatPercent(share)}`],
       color,
     });
     lines.forEach(

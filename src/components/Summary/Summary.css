@@ -4,6 +4,17 @@
   padding: 0 1rem 0.5rem;
 }
 
+/* The header's KPI row does not wrap, so on a narrow card the side indicator
+   squeezes until its number breaks. Let it drop below the main value. The
+   library's class names are hashed, hence the :has() selector. */
+.summary div:has(> div > #total-capacity-units) {
+  flex-wrap: wrap;
+}
+
+.summary #total-capacity-units {
+  white-space: nowrap;
+}
+
 .summary-body > section {
   padding: 1rem 0;
 }
@@ -143,9 +154,11 @@
   box-shadow: inset 0 0 0 1px var(--sapList_BorderColor, #e5e5e5);
 }
 
+/* Neutral like the total in the cost flow: this is the whole bill, not a
+   category. */
 .cost-range-min,
 .cost-range-scale-out {
-  background: var(--sapChart_OrderedColor_1);
+  background-color: var(--sapNeutralColor, #788fa6);
 }
 
 .cost-range-min {
@@ -197,4 +210,9 @@
 .cost-range-value {
   font-family: var(--sapFontBoldFamily);
   color: var(--sapTextColor);
+}
+
+.summary-actions {
+  display: flex;
+  gap: 0.25rem;
 }

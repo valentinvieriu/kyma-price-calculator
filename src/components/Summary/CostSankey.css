@@ -69,6 +69,14 @@
   font-weight: bold;
 }
 
+.cost-sankey-total line {
+  stroke: var(--sapList_BorderColor, #e5e5e5);
+}
+
+.cost-sankey-total .cost-sankey-name {
+  font-weight: bold;
+}
+
 .cost-sankey-empty {
   margin: 0;
   color: var(--sapContent_LabelColor);

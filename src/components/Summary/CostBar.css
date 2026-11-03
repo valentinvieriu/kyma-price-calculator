@@ -1,50 +1,3 @@
-.cost-bar-track {
-  display: flex;
-  gap: 2px;
-  height: 0.5rem;
-  border-radius: 0.25rem;
-  overflow: hidden;
-  background: var(--sapNeutralBackground, #eaecee);
-}
-
-.cost-bar-segment {
-  min-width: 3px;
-  transition: flex-grow 0.2s ease;
-}
-
-.cost-bar-legend {
-  list-style: none;
-  margin: 0.75rem 0 0;
-  padding: 0;
-  display: grid;
-  gap: 0.5rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.cost-bar-legend li {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.cost-bar-dot {
-  width: 0.625rem;
-  height: 0.625rem;
-  border-radius: 50%;
-}
-
-.cost-bar-share {
-  color: var(--sapContent_LabelColor);
-  font-size: var(--sapFontSmallSize);
-}
-
-.cost-bar-legend .value {
-  min-width: 7rem;
-  text-align: right;
-  color: var(--sapTextColor);
-}
-
 .cost-bar-toolbar {
   display: flex;
   align-items: center;
@@ -58,33 +11,19 @@
   font-size: var(--sapFontSmallSize);
 }
 
+/* The flow shows the same figures; screen readers still get the list, as the
+   chart's captions are hidden from them. */
+.cost-bar-legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .cost-flow-dialog {
   width: min(64rem, 94vw);
-}
-
-/* Load-dependent cost is striped, like in the cost flow. */
-.cost-bar-segment--scale-out {
-  background-image: repeating-linear-gradient(
-    45deg,
-    transparent 0 3px,
-    color-mix(in srgb, var(--sapTile_Background, #fff) 55%, transparent) 3px 5px
-  ) !important;
-  background-blend-mode: normal;
-}
-
-.cost-bar-segment--headroom {
-  background: transparent;
-  box-shadow: inset 0 0 0 1px var(--sapContent_LabelColor);
-  border-radius: 0 0.25rem 0.25rem 0;
-  opacity: 0.5;
-}
-
-.cost-bar-label {
-  display: flex;
-  flex-direction: column;
-}
-
-.cost-bar-range {
-  color: var(--sapContent_LabelColor);
-  font-size: var(--sapFontSmallSize);
 }

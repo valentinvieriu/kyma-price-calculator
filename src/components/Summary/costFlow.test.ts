@@ -61,6 +61,9 @@ describe('buildCostFlow', () => {
     expect(
       graph.nodes.find(({ id }) => id === 'storage-cost/1')?.caption,
     ).toEqual(['Shared files (NFS)', '86,40 CU']);
+    expect(
+      graph.nodes.find(({ id }) => id === 'storage-cost')?.caption,
+    ).toEqual(['Storage', '187,20 CU · 18 %']);
   });
 
   test('full: categories add up to the CU total', () => {

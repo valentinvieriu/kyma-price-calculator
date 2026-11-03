@@ -81,10 +81,9 @@ context('Billing details users can verify', () => {
     cy.get('#storage-cost .value').contains('14,40 CU');
   });
 
-  it('accepts a conversion rate with one decimal and compares in currency', () => {
+  it('accepts a conversion rate with one decimal', () => {
     cy.visit('/');
 
-    cy.get('ui5-button').contains('Pin as baseline').click();
     cy.get('#summary-rate').click();
     cy.typeIntoStepInput('conversion-rate-input', 0.8);
     cy.get('ui5-step-input#conversion-rate-input').should(
@@ -95,8 +94,7 @@ context('Billing details users can verify', () => {
 
     // 1306.37 CU × 0.80 = 1045.09 €, CU unchanged
     cy.get('#total-in-currency').contains('1.045,09');
-    cy.get('#baseline-delta').contains('261,27 €');
-    cy.get('#cost-summary').contains('Changed: conversion rate.');
+    cy.get('#total-capacity-units').contains('1.306,37 CU');
   });
 });
 

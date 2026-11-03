@@ -15,8 +15,8 @@ import { timeConsumptionState } from './additionalConfig/timeConsumptionState';
 import { applyConversionRateState } from './additionalConfig/applyConversionRateState';
 import { redisState } from './additionalConfig/redisState';
 
-// Every user input as plain, serializable values. Used to reset the page, to
-// share a configuration via URL and to restore a pinned baseline.
+// Every user input as plain, serializable values. Used to reset the page and to
+// share a configuration via URL.
 
 export interface PoolSnapshot {
   machineType: string;

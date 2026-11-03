@@ -34,7 +34,7 @@ export default function NumberInput({
   accessibleName,
 }: Props) {
   // UI5 caches the displayed text after a +/− click and ignores later value
-  // changes from outside (Reset, Restore baseline). Remount the field when the
+  // changes from outside (Reset, a shared link). Remount the field when the
   // value changes to something it did not emit itself.
   const [emitted, setEmitted] = useState(value);
   const [previous, setPrevious] = useState(value);

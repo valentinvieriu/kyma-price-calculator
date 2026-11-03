@@ -12,25 +12,17 @@ import {
   totalCostsAtom,
 } from '../../state/costState';
 import { poolsLoadLabel } from '../../state/nodes/loadProfiles';
-import { baselineState } from '../../state/baselineState';
 import { formatCost, formatCU, formatCurrency } from '../../utils/format';
 import CostBar from './CostBar';
-import BaselineControls from './BaselineControls';
 import ExportButtons from './ExportButtons';
 import CalculationPanel from './CalculationPanel';
 import CostRange from './CostRange';
 import './Summary.css';
 
-function trend(current: number, baseline?: number) {
-  if (baseline === undefined || current === baseline) return 'None';
-  return current > baseline ? 'Up' : 'Down';
-}
-
-// Kept short so the total, its make-up and the comparison stay visible
-// together; every charge is in the cost flow and in the exports.
+// Kept short so the total and its make-up stay visible together; every charge
+// is in the cost flow and in the exports.
 export default function Summary() {
   const totalCosts = useAtomValue(totalCostsAtom);
-  const baseline = useAtomValue(baselineState);
   const canScale = useAtomValue(canScaleAtom);
   const range = useAtomValue(costRangeAtom);
   const pools = useAtomValue(poolCostsAtom);
@@ -50,7 +42,6 @@ export default function Summary() {
           subtitleText={subtitle}
           value={formatCost(totalCosts.CC)}
           scale={config.CurrencyCode}
-          trend={trend(totalCosts.CC, baseline?.totalCosts.CC)}
         >
           <NumericSideIndicator
             id="total-capacity-units"
@@ -66,9 +57,6 @@ export default function Summary() {
         <CalculationPanel />
         <section aria-label="Cost by category" className="summary-composition">
           <CostBar />
-        </section>
-        <section aria-label="Compare with a baseline">
-          <BaselineControls />
         </section>
         <section aria-label="Export">
           <ExportButtons />

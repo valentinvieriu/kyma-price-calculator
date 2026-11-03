@@ -1,6 +1,7 @@
 import { CSSProperties, useId, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { scenarioCategoriesAtom } from '../../state/costState';
+import { formatCU } from '../../utils/format';
 import useWidth from '../common/useWidth';
 import { applyConversionRateState } from '../../state/additionalConfig/applyConversionRateState';
 import { costLineGroupsAtom } from './costLines';
@@ -20,6 +21,8 @@ const FONT_SIZE = { compact: 12, full: 14 };
 // Average glyph width relative to the font size, for digits and lowercase.
 const GLYPH_WIDTH = 0.55;
 const LABEL_GAP = 8;
+// Between the last category caption, the rule and the total below it.
+const TOTAL_GAP = 6;
 
 // Shading happens in CSS (see CostSankey.css), where browsers without
 // relative colour syntax fall back to the plain colour.
@@ -63,7 +66,7 @@ function layoutOptions(
         // Two caption lines of 14 px plus a little air.
         nodePadding: 32,
         groupPadding: 12,
-        ...margins(0.45, 0.35),
+        ...margins(0.45, 0.42),
       }
     : {
         width,
@@ -111,6 +114,46 @@ function NodeLabel({
   );
 }
 
+// Bottom of a node's caption, which is centred on the node.
+const captionBottom = (node: SankeyNode, lineHeight: number) =>
+  (node.y0 + node.y1) / 2 + (node.caption.length * lineHeight) / 2;
+
+// The compact flow has no room for a total column, so the categories are
+// summed up below their captions, like a column of figures.
+function TotalLine({
+  categories,
+  y,
+  width,
+  lineHeight,
+  totalCU,
+}: {
+  categories: SankeyNode[];
+  y: number;
+  width: number;
+  lineHeight: number;
+  totalCU: number;
+}) {
+  const x = categories[0].x1 + LABEL_GAP;
+  return (
+    <g className="cost-sankey-total" aria-hidden="true">
+      <line x1={categories[0].x0} x2={width} y1={y} y2={y} />
+      <text
+        className="cost-sankey-label"
+        x={x}
+        y={y + TOTAL_GAP + lineHeight / 2}
+        dominantBaseline="middle"
+      >
+        <tspan x={x} className="cost-sankey-name">
+          Total
+        </tspan>
+        <tspan x={x} dy={lineHeight} className="cost-sankey-name">
+          {formatCU(totalCU)}
+        </tspan>
+      </text>
+    </g>
+  );
+}
+
 // Where the cost comes from: each charge as a band whose width is its share
 // of the total, flowing into its category (and in full detail on to the total
 // and what you pay).
@@ -130,12 +173,26 @@ export default function CostSankey({ detail }: { detail: Detail }) {
   // Captions are centred on their node and can reach past the drawing.
   const lineHeight = LINE_HEIGHT[detail];
   const inset = lineHeight;
-  const height = layout.height + 2 * inset;
+  const categories = layout.nodes.filter(
+    ({ column }) => column === layout.columns - 1,
+  );
+  const showTotal = detail === 'compact' && categories.length > 0;
+  const totalY = showTotal
+    ? Math.max(
+        ...categories.map((node) =>
+          Math.max(node.y1, captionBottom(node, lineHeight)),
+        ),
+      ) + TOTAL_GAP
+    : 0;
+  const bottom = showTotal
+    ? Math.max(layout.height, totalY + TOTAL_GAP + 2 * lineHeight - inset)
+    : layout.height;
+  const height = bottom + 2 * inset;
 
   const charges = layout.nodes.filter(({ column }) => column === 0);
   const description = `Cost flow: ${charges
     .map(({ caption }) => caption.join(' '))
-    .join(', ')}.`;
+    .join(', ')}. Total ${formatCU(totalCosts.CU)}.`;
 
   const isLit = (source: string, target: string, key: string) =>
     active === null || active === key || active === source || active === target;
@@ -228,6 +285,15 @@ export default function CostSankey({ detail }: { detail: Detail }) {
               />
             ))}
           </g>
+          {showTotal && (
+            <TotalLine
+              categories={categories}
+              y={totalY}
+              width={layout.width}
+              lineHeight={lineHeight}
+              totalCU={totalCosts.CU}
+            />
+          )}
         </svg>
       )}
     </div>
